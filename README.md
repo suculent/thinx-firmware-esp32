@@ -1,6 +1,6 @@
 # THiNX Lib (ESP32)
 
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/8dded023f3d14a69b3c38c9f5fd66a40)](https://www.codacy.com/app/suculent/thinx-lib-esp32-arduinoc?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=suculent/thinx-lib-esp32-arduinoc&amp;utm_campaign=Badge_Grade)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/67836d4af1a04ca7b945ede789edcff1)](https://www.codacy.com/app/suculent/thinx-firmware-esp32?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=suculent/thinx-firmware-esp32&amp;utm_campaign=Badge_Grade)
 
 An Arduino/ESP32 library to wrap client for OTA updates and RTM (Remote Things Management) based on THiNX platform.
 
