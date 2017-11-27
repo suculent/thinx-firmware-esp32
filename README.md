@@ -1,13 +1,12 @@
-# THiNX Lib (ESP)
+# THiNX Lib (ESP32)
 
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/8dded023f3d14a69b3c38c9f5fd66a40)](https://www.codacy.com/app/suculent/thinx-lib-esp8266-arduinoc?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=suculent/thinx-lib-esp8266-arduinoc&amp;utm_campaign=Badge_Grade)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/8dded023f3d14a69b3c38c9f5fd66a40)](https://www.codacy.com/app/suculent/thinx-lib-esp32-arduinoc?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=suculent/thinx-lib-esp32-arduinoc&amp;utm_campaign=Badge_Grade)
 
-An Arduino/ESP8266 library to wrap client for OTA updates and RTM (Remote Things Management) based on THiNX platform.
+An Arduino/ESP32 library to wrap client for OTA updates and RTM (Remote Things Management) based on THiNX platform.
 
 # What's New
 
-* Added example that combines THiNX with any other UART device (SigFox) for outage reporting with battery backup
-* Added possibility to set own status string on check-in
+* Ported ESP32httpUpdate in order to make this work.
 
 See changelog at the end for rest.
 
@@ -22,7 +21,7 @@ See changelog at the end for rest.
 ## Include
 
 ```c
-#include <THiNXLib.h>
+#include <THiNX32Lib.h>
 ```
 
 ## Definition
@@ -38,7 +37,7 @@ and awaits optionally new API Key (security hole? FIXME: In case the API Key is 
 
 ```c
 #include "Arduino.h"
-#include <THiNXLib.h>
+#include <THiNX32Lib.h>
 
 THiNX thx;
 
@@ -138,5 +137,7 @@ You can update your device's location aquired by WiFi library or GPS module usin
 Device will be forced to checked in when you change those values.
 
 # Changelog
+
+27/11/2017 - 2.1.145 - ported to ESP32
 
 4/11/2017 - 2.0.123 - added pushConfigCallback, public MQTT methods publishStatus(message) and publish(message, topic, retain), WiFi migration example; added support for finding and using thinx-connect proxy using MDNS
