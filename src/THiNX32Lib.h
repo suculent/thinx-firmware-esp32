@@ -178,11 +178,7 @@ private:
 
     // In order of appearance
 
-#if defined(ESP8266)
     bool fsck();                            // check filesystem if using SPIFFS
-#endif
-
-
 
     void connect();                         // start the connect loop
     void connect_wifi();                    // start connecting

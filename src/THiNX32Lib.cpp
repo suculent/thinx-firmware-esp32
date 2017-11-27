@@ -884,7 +884,7 @@ bool THiNX::start_mqtt() {
       uint32_t startTime = millis();
       uint32_t size = pub.payload_len();
 
-
+      /* Currently not suppported {/}
       if ( ESP.updateSketch(*pub.payload_stream(), size, true, false) ) {
 
         // Notify on reboot for update
@@ -903,6 +903,7 @@ bool THiNX::start_mqtt() {
           "{ \"status\" : \"mqtt_update_failed\" }"
         );
       }
+      */
 
     } else {
       Serial.println(F("*TH: MQTT Type: String or JSON..."));
@@ -1261,8 +1262,10 @@ bool THiNX::fsck() {
     }
     Serial.println(F("* TH: SPIFFS Initialization completed."));
   }  else {
-    Serial.print(F("*TH: Flash incorrectly configured, SPIFFS cannot start, IDE size: "));
+    Serial.print(F("*TH: Flash incorrectly configured, SPIFFS cannot start."));
+#if defined(ESP8266)
     Serial.println(ideSize + ", real size: " + realSize);
+#endif
   }
   return fileSystemReady ? true : false;
 }
