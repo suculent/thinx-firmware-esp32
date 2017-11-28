@@ -1350,6 +1350,7 @@ void THiNX::loop() {
       if (!MDNS.begin(thinx_alias)) {
         Serial.println(F("*TH: Error setting up mDNS"));
       } else {
+          /* does not timeout on ESP32
         // Query MDNS proxy
         Serial.println(F("*TH: Searching for thinx-connect on local network..."));
         int n = MDNS.queryService("thinx", "tcp"); // TODO: WARNING! may be _tcp!
@@ -1364,11 +1365,29 @@ void THiNX::loop() {
           Serial.print(F("     thinx_cloud_url : ")); Serial.println(thinx_cloud_url);
           Serial.print(F("     thinx_mqtt_url  : ")); Serial.println(thinx_mqtt_url);
         }
+           */
       }
 
       thinx_phase = CONNECT_API;
+        return;
     }
   }
+    
+    // CASE thinx_phase == CONNECT_API
+    
+    // If connected, perform the MQTT loop and bail out ASAP
+    if (thinx_phase == CONNECT_API) {
+        if (WiFi.getMode() == WIFI_AP) {
+            Serial.println(F("*TH: LOOP « (AP_MODE)"));
+            return;
+        }
+        if (strlen(thinx_api_key) > 4) {
+            checkin(); // warning, this blocking and takes time, thus return...
+            thinx_phase = CONNECT_MQTT;
+        } else {
+            Serial.println(F("*TH: NO API KEY TO CHECKIN!"));
+        }
+    }
 
   // After MQTT gets connected:
   if (thinx_phase == CHECKIN_MQTT) {
@@ -1405,19 +1424,7 @@ void THiNX::loop() {
     }
   }
 
-  // CASE thinx_phase == CONNECT_API
-
-  // If connected, perform the MQTT loop and bail out ASAP
-  if (thinx_phase == CONNECT_API) {
-    if (WiFi.getMode() == WIFI_AP) {
-      Serial.println(F("*TH: LOOP « (AP_MODE)"));
-      return;
-    }
-    if (strlen(thinx_api_key) > 4) {
-      checkin(); // warning, this blocking and takes time, thus return...
-      thinx_phase = CONNECT_MQTT;
-    }
-  }
+  
 
   if ( thinx_phase == FINALIZE ) {
     Serial.println(F("*TH: Calling finalize()... "));
