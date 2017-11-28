@@ -909,6 +909,9 @@ bool THiNX::start_mqtt() {
       Serial.println(F("*TH: MQTT Type: String or JSON..."));
       Serial.println(pub.payload_string());
       parse(pub.payload_string());
+        if (_mqtt_callback) {
+            _mqtt_callback(pub.payload_string());
+        }
     }
   }); // end-of-callback
 
@@ -1303,6 +1306,10 @@ void THiNX::setPushConfigCallback( void (*func)(String) ) {
 
 void THiNX::setFinalizeCallback( void (*func)(void) ) {
   _finalize_callback = func;
+}
+
+void THiNX::setMQTTCallback( void (*func)(String) ) {
+    _mqtt_callback = func;
 }
 
 void THiNX::finalize() {
