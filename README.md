@@ -1,12 +1,16 @@
 # THiNX Lib (ESP32)
 
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/67836d4af1a04ca7b945ede789edcff1)](https://www.codacy.com/app/suculent/thinx-firmware-esp32?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=suculent/thinx-firmware-esp32&amp;utm_campaign=Badge_Grade)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/8dded023f3d14a69b3c38c9f5fd66a40)](https://www.codacy.com/app/suculent/thinx-lib-esp32-arduinoc?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=suculent/thinx-lib-esp32-arduinoc&amp;utm_campaign=Badge_Grade)
 
 An Arduino/ESP32 library to wrap client for OTA updates and RTM (Remote Things Management) based on THiNX platform.
 
 # What's New
 
 * Ported ESP32httpUpdate in order to make this work.
+* Time support
+* MQTT callback
+* Configurable auto-reboot and auto-checkin interval
+* Updated example
 
 See changelog at the end for rest.
 
@@ -85,7 +89,7 @@ void loop()
 When THiNX connects safely to network and connection is working, you'll get this callback.
 
 ```
-/* Called after library gets connected and registered */
+/* Called after library gets wifi_connected and registered */
 void finalizeCallback () {
   Serial.println("*INO: Finalize callback called.");
   ESP.deepSleep(3e9);

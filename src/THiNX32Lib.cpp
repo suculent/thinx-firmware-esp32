@@ -788,7 +788,6 @@ void THiNX::parse(String payload) {
 * MQTT channel names
 */
 
-// TODO: Should be called only on init and update (and store result for later)
 String THiNX::thinx_mqtt_channel() {
   sprintf(mqtt_device_channel, "/%s/%s", thinx_owner, thinx_udid);
   return String(mqtt_device_channel);
@@ -799,7 +798,6 @@ String THiNX::thinx_mqtt_channels() {
   return String(mqtt_device_channels);
 }
 
-// TODO: Should be called only on init and update (and store result for later)
 String THiNX::thinx_mqtt_status_channel() {
   sprintf(mqtt_device_status_channel, "/%s/%s/status", thinx_owner, thinx_udid);
   return String(mqtt_device_status_channel);
@@ -848,7 +846,6 @@ String THiNX::date(const char* optional_format) {
 * Device MAC address
 */
 
-// TODO: Return me back to 8266 library
 const char * THiNX::thinx_mac() {
   sprintf(mac_string, "5CCF7F%6X", ESP.getEfuseMac());
   return mac_string;
