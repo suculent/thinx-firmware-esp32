@@ -9,14 +9,14 @@
 
 // Provides placeholder for THINX_FIRMWARE_VERSION_SHORT
 #ifndef VERSION
-#define VERSION "2.1.147"
+#define VERSION "2.1.170"
 #endif
 
 #ifndef THX_REVISION
 #ifdef THINX_FIRMWARE_VERSION_SHORT
 #define THX_REVISION THINX_FIRMWARE_VERSION_SHORT
 #else
-#define THX_REVISION "147"
+#define THX_REVISION "170"
 #endif
 #endif
 
@@ -28,7 +28,7 @@
 
 #include <stdio.h>
 
-// SUpported by Arduino ESP32 Framwork
+// Supported by Arduino ESP32 Framwork
 #include <SPIFFS.h>
 #include <EEPROM.h>
 #include <WiFi.h>
@@ -49,6 +49,8 @@ public:
     static double latitude;
     static double longitude;
     static String statusString;
+    static String accessPointName;
+    static String accessPointPassword;
 
 #ifdef __USE_WIFI_MANAGER__
     static WiFiManagerParameter *api_key_param;
@@ -63,11 +65,11 @@ public:
 
     enum payload_type {
         Unknown = 0,
-        UPDATE = 1,                                 // Firmware Update Response Payload
-        REGISTRATION = 2,                           // Registration Response Payload
-        NOTIFICATION = 3,                      // Notification/Interaction Response Payload
-        CONFIGURATION = 4,                     // Environment variables update
-        Reserved = 255,                             // Reserved
+        UPDATE = 1,         // Firmware Update Response Payload
+        REGISTRATION = 2,   // Registration Response Payload
+        NOTIFICATION = 3,   // Notification/Interaction Response Payload
+        CONFIGURATION = 4,  // Environment variables update
+        Reserved = 255,     // Reserved
     };
 
     enum phase {
@@ -86,17 +88,20 @@ public:
     void initWithAPIKey(const char *);
     void loop();
 
-    String checkin_body();                  // TODO: Refactor to C-string
+    String checkin_body();  // TODO: Refactor to C-string
 
     // MQTT
     PubSubClient *mqtt_client = NULL;
 
     String thinx_mqtt_channel();
-    char mqtt_device_channel[128]; //  = {0}
+    char mqtt_device_channel[128];
+    char mqtt_device_channels[128];
+    char mqtt_device_status_channel[128];
+    //String thinx_mqtt_channel();
+    String thinx_mqtt_channels();
     String thinx_mqtt_status_channel();
-    char mqtt_device_status_channel[128]; //  = {0}
 
-    // Import build-time values from thinx.h
+    // Values imported on build from thinx.h
     const char* app_version;                  // max 80 bytes
     const char* available_update_url;         // up to 1k
     const char* thinx_cloud_url;              // up to 1k but generally something where FQDN fits
@@ -115,7 +120,8 @@ public:
     // dynamic variables
     char* thinx_alias;
     char* thinx_owner;
-    char* thinx_udid;
+
+    char * get_udid();
 
     void setPushConfigCallback( void (*func)(String) );
     void setFinalizeCallback( void (*func)(void) );
@@ -128,13 +134,29 @@ public:
 
     // MQTT Support
     void publishStatus(String);               // send String to status channel
+    void publishStatusUnretained(String);     // send String to status channel (unretained)
+    void publishStatusRetain(String, bool);   // send String to status channel (optionally retained)
     void publish(String, String, bool);       // send String to any channel, optinally with retain
 
     void setStatus(String);
 
+    static const char time_format[];
+    static const char date_format[];
+
+    // Time and Date support requires checkin against THiNX API > 0.9.305x
+    long epoch();                    // estimated timestamp since last checkin as
+    String time(const char*);        // estimated current Time
+    String date(const char*);        // estimated current Date
+
+    void setCheckinInterval(long interval);
+    void setRebootInterval(long interval);
+
 private:
 
-    bool connected;                         // WiFi connected in station mode
+    char* thinx_udid;
+
+    bool wifi_connected;  // WiFi connected in station mode
+    bool info_loaded = false;
 
     static char* thinx_api_key;
     static char* thinx_owner_key;
@@ -188,23 +210,33 @@ private:
     void parse(String);
     void update_and_reboot(String);
 
+    long checkin_timeout;                   // next timeout millis()
+    long checkin_interval = 3600 * 1000;    // can be set externaly, defaults to 1h
+
+    long last_checkin_millis;
+    long last_checkin_timestamp;
+
+    long reboot_timeout;                    // next timeout millis()
+    long reboot_interval = 86400 * 1000;    // can be set externaly, defaults to 24h
+
     // MQTT
     bool start_mqtt();                      // connect to broker and subscribe
-    int mqtt_result;                       // success or failure on connection
-    int mqtt_connected;                    // success or failure on subscription
+    int mqtt_result;                        // success or failure on connection
+    int mqtt_connected;                     // success or failure on subscription
     String mqtt_payload;                    // mqtt_payload store for parsing
     int last_mqtt_reconnect;                // interval
-    int performed_mqtt_checkin;              // one-time flag
-    int all_done;                              // finalize flag
+    int performed_mqtt_checkin;             // one-time flag
+    int all_done;                           // finalize flag
 
     void (*_config_callback)(String) = NULL;  // Called when server pushes new environment vars using MQTT
     void (*_mqtt_callback)(String) = NULL;
+    void (*_finalize_callback)(void) = NULL;
 
     // Data Storage
     void import_build_time_constants();     // sets variables from thinx.h file
     void save_device_info();                // saves variables to SPIFFS or EEPROM
     void restore_device_info();             // reads variables from SPIFFS or EEPROM
-    void deviceInfo();                    // TODO: Refactor to C-string
+    void deviceInfo();                      // TODO: Refactor to C-string
 
     // Updates
     void notify_on_successful_update();     // send a MQTT notification back to Web UI
@@ -215,7 +247,6 @@ private:
     void evt_save_api_key();
 
     // Finalize
-    void (*_finalize_callback)(void) = NULL;
     void finalize();                        // Complete the checkin, schedule, callback...
 
     // Local WiFi Impl
