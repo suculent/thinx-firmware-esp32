@@ -9,14 +9,14 @@
 
 // Provides placeholder for THINX_FIRMWARE_VERSION_SHORT
 #ifndef VERSION
-#define VERSION "2.1.170"
+#define VERSION "2.1.174"
 #endif
 
 #ifndef THX_REVISION
 #ifdef THINX_FIRMWARE_VERSION_SHORT
 #define THX_REVISION THINX_FIRMWARE_VERSION_SHORT
 #else
-#define THX_REVISION "170"
+#define THX_REVISION "174"
 #endif
 #endif
 
@@ -97,7 +97,6 @@ public:
     char mqtt_device_channel[128];
     char mqtt_device_channels[128];
     char mqtt_device_status_channel[128];
-    //String thinx_mqtt_channel();
     String thinx_mqtt_channels();
     String thinx_mqtt_status_channel();
 
@@ -210,13 +209,13 @@ private:
     void parse(String);
     void update_and_reboot(String);
 
-    long checkin_timeout;                   // next timeout millis()
+    long checkin_timeout = 3600 * 1000;                   // next timeout millis()
     long checkin_interval = 3600 * 1000;    // can be set externaly, defaults to 1h
 
     long last_checkin_millis;
     long last_checkin_timestamp;
 
-    long reboot_timeout;                    // next timeout millis()
+    long reboot_timeout = 86400 * 1000;                    // next timeout millis()
     long reboot_interval = 86400 * 1000;    // can be set externaly, defaults to 24h
 
     // MQTT

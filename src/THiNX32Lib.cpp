@@ -26,6 +26,7 @@ const char THiNX::date_format[] = "%Y-%M-%d";
 char THiNX::thx_api_key[65] = {0};
 char THiNX::thx_owner_key[65] = {0};
 int THiNX::should_save_config = 0;
+
 WiFiManagerParameter * THiNX::api_key_param;
 WiFiManagerParameter * THiNX::owner_param;
 
