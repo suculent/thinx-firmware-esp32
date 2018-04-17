@@ -1003,7 +1003,7 @@ bool THiNX::start_mqtt() {
 
     return true;
 
-  } else
+  } else {
     mqtt_connected = false;
     Serial.println(F("*TH: MQTT Not connected."));
     return false;
@@ -1516,7 +1516,7 @@ void THiNX::loop() {
     finalize();
   }
 
-  if ( thinx_phase => FINALIZE ) {
+  if ( thinx_phase >= FINALIZE ) {
     if (mqtt_connected == true) {
       mqtt_client->loop();
     }
