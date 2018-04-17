@@ -375,7 +375,7 @@ String THiNX::checkin_body() {
   root["lon"] = String(longitude);
 
   root["rssi"] = String(WiFi.RSSI());
-  root["snr"] = String(-100 + WiFi.RSSI()); // approximate only
+  root["snr"] = String(100 + WiFi.RSSI() / WiFi.RSSI()); // approximate only
 
   // Flag for THiNX CI
   #ifndef PLATFORMIO_IDE
