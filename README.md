@@ -6,11 +6,7 @@ An Arduino/ESP32 library to wrap client for OTA updates and RTM (Remote Things M
 
 # What's New
 
-* Ported ESP32httpUpdate in order to make this work.
-* Time support
-* MQTT callback
-* Configurable auto-reboot and auto-checkin interval
-* Updated example
+* Improving method naming. `setStatus` is now deprecated in favour of `setDashboardStatus`.
 
 See changelog at the end for rest.
 
@@ -141,6 +137,8 @@ You can update your device's location aquired by WiFi library or GPS module usin
 Device will be forced to checked in when you change those values.
 
 # Changelog
+
+16/4/2018 - 2.2.175 - improvements in naming, synced fixes  with ESP8266 version
 
 27/11/2017 - 2.1.145 - ported to ESP32
 

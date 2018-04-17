@@ -9,14 +9,14 @@
 
 // Provides placeholder for THINX_FIRMWARE_VERSION_SHORT
 #ifndef VERSION
-#define VERSION "2.1.174"
+#define VERSION "2.2.175"
 #endif
 
 #ifndef THX_REVISION
 #ifdef THINX_FIRMWARE_VERSION_SHORT
 #define THX_REVISION THINX_FIRMWARE_VERSION_SHORT
 #else
-#define THX_REVISION "174"
+#define THX_REVISION "175"
 #endif
 #endif
 
@@ -128,16 +128,15 @@ public:
 
     int wifi_connection_in_progress;
 
-    // Location Support
-    void setLocation(double,double);
-
     // MQTT Support
+
+    // publish to device status channel only
     void publishStatus(String);               // send String to status channel
     void publishStatusUnretained(String);     // send String to status channel (unretained)
     void publishStatusRetain(String, bool);   // send String to status channel (optionally retained)
-    void publish(String, String, bool);       // send String to any channel, optinally with retain
 
-    void setStatus(String);
+    // publish to specified channel
+    void publish(String, String, bool);       // send String to any channel, optinally with retain
 
     static const char time_format[];
     static const char date_format[];
@@ -204,7 +203,13 @@ private:
 
     void connect();                         // start the connect loop
     void connect_wifi();                    // start connecting
-    void checkin();                         // checkin when connected
+
+    // checkins
+    void checkin();                         // happens on registration
+    void setDashboardStatus(String);        // performs checkin while updating Status on Dashboard
+    void setStatus(String);                 // deprecated 2.2 (3)
+    void setLocation(double,double);        // performs checkin while updating Location
+
     void senddata(String);
     void parse(String);
     void update_and_reboot(String);
@@ -220,8 +225,7 @@ private:
 
     // MQTT
     bool start_mqtt();                      // connect to broker and subscribe
-    int mqtt_result;                        // success or failure on connection
-    int mqtt_connected;                     // success or failure on subscription
+    int mqtt_connected;                     // success or failure on connection
     String mqtt_payload;                    // mqtt_payload store for parsing
     int last_mqtt_reconnect;                // interval
     int performed_mqtt_checkin;             // one-time flag
