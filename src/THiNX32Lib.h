@@ -148,6 +148,12 @@ public:
 
     void setCheckinInterval(long interval);
     void setRebootInterval(long interval);
+    
+    // checkins
+    void checkin();                         // happens on registrationw
+    void setDashboardStatus(String);        // performs checkin while updating Status on Dashboard
+    void setStatus(String);                 // deprecated 2.2 (3)
+    void setLocation(double,double);        // performs checkin while updating Location
 
 private:
 
@@ -203,12 +209,6 @@ private:
 
     void connect();                         // start the connect loop
     void connect_wifi();                    // start connecting
-
-    // checkins
-    void checkin();                         // happens on registration
-    void setDashboardStatus(String);        // performs checkin while updating Status on Dashboard
-    void setStatus(String);                 // deprecated 2.2 (3)
-    void setLocation(double,double);        // performs checkin while updating Location
 
     void senddata(String);
     void parse(String);
