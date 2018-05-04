@@ -143,6 +143,7 @@ public:
 
     // Time and Date support requires checkin against THiNX API > 0.9.305x
     long epoch();                    // estimated timestamp since last checkin as
+    long timezone_offset = 2;
     String time(const char*);        // estimated current Time
     String date(const char*);        // estimated current Date
 

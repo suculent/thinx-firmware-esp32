@@ -683,7 +683,7 @@ void THiNX::parse(String payload) {
 
         if (registration.containsKey(F("timestamp"))) {
           Serial.println("Updating time: ");
-          last_checkin_timestamp = (long)registration[F("timestamp")];
+          last_checkin_timestamp = (long)registration[F("timestamp")] + timezone_offset * 3600;
           last_checkin_millis = millis();
           Serial.println(time(NULL));
         }
