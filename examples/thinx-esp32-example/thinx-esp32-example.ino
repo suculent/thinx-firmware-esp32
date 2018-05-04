@@ -6,7 +6,7 @@
 
 const char *apikey = "4721f08a6df1a36b8517f678768effa8b3f2e53a7a1934423c1f42758dd83db5";
 const char *owner_id = "cedc16bb6bb06daaa3ff6d30666d91aacd6e3efbf9abbc151b4dcade59af7c12";
-const char *ssid = "THiNX-iP7";
+const char *ssid = "THiNX-IoT-X";
 const char *pass = "<enter-your-ssid-password>";
 
 THiNX thx;
@@ -19,12 +19,13 @@ void finalizeCallback () {
 
 void setup() {
 
-  Serial.begin(115200);
+  Serial.begin(230400);
 
 #ifdef __DEBUG__
   while (!Serial); // wait for debug console connection
   Serial.println("Connecting to predefined WiFi...");
   WiFi.begin(ssid, pass);
+  delay(2000);
 #endif
 
   // Enter API Key and Owner ID (should be faster)

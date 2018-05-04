@@ -5,13 +5,13 @@
   "authors": {
     "name": "Matej Sychra",
     "email": "suculent@me.com",
-    "url": "https://github.com/suculent/thinx-firmware-esp8266-pio"
+    "url": "https://github.com/suculent/thinx-firmware-esp32"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/suculent/thinx-firmware-esp8266-pio.git"
+    "url": "https://github.com/suculent/thinx-firmware-esp32.git"
   },
-  "version": "2.2.177",
+  "version": "2.2.179",
   "frameworks": "arduino",
   "platforms": "*"
 }

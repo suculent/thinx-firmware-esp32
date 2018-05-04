@@ -9,14 +9,14 @@
 
 // Provides placeholder for THINX_FIRMWARE_VERSION_SHORT
 #ifndef VERSION
-#define VERSION "2.2.177"
+#define VERSION "2.2.179"
 #endif
 
 #ifndef THX_REVISION
 #ifdef THINX_FIRMWARE_VERSION_SHORT
 #define THX_REVISION THINX_FIRMWARE_VERSION_SHORT
 #else
-#define THX_REVISION "177"
+#define THX_REVISION "179"
 #endif
 #endif
 
@@ -148,7 +148,7 @@ public:
 
     void setCheckinInterval(long interval);
     void setRebootInterval(long interval);
-    
+
     // checkins
     void checkin();                         // happens on registrationw
     void setDashboardStatus(String);        // performs checkin while updating Status on Dashboard

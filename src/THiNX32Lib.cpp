@@ -96,7 +96,6 @@ THiNX::THiNX(const char * __apikey, const char * __owner_id) {
   mqtt_client = NULL;
   mqtt_payload = "";
   mqtt_connected = false;
-  mqtt_connected = false;
   performed_mqtt_checkin = false;
   wifi_connection_in_progress = false;
   wifi_retry = 0;
@@ -169,7 +168,6 @@ THiNX::THiNX(const char * __apikey, const char * __owner_id) {
 // Designated initializer
 void THiNX::initWithAPIKey(const char * __apikey) {
 
-#if defined(ESP8266)
   #ifdef __USE_SPIFFS__
   Serial.println(F("*TH: Checking filesystem, please don't turn off or reset the device now..."));
   if (!fsck()) {
@@ -177,10 +175,6 @@ void THiNX::initWithAPIKey(const char * __apikey) {
     return;
   }
   #endif
-#else
-    // CHECK SPIFFS ESP32 OR USE NVS INSTEAD!
-    // Now supports format on begin on ESP32.
-#endif
 
   if (info_loaded == false) {
    restore_device_info(); // loads saved apikey/ownerid
@@ -375,7 +369,7 @@ String THiNX::checkin_body() {
   root["lon"] = String(longitude);
 
   root["rssi"] = String(WiFi.RSSI());
-  root["snr"] = String(100 + WiFi.RSSI() / WiFi.RSSI()); // approximate only
+  //root["snr"] = String(100 + WiFi.RSSI() / WiFi.RSSI()); // approximate only
 
   // Flag for THiNX CI
   #ifndef PLATFORMIO_IDE
@@ -405,6 +399,9 @@ String THiNX::checkin_body() {
 */
 
 void THiNX::senddata(String body) {
+
+  char buf[1024];
+  int pos = 0;
 
   // Serial.print("Sending data over HTTP to: "); Serial.println(thinx_cloud_url);
 
@@ -436,15 +433,15 @@ void THiNX::senddata(String body) {
     }
 
     // Read while connected
-    String payload;
     while ( thx_wifi_client.connected() ) {
-      delay(1);
       if ( thx_wifi_client.available() ) {
-        char str = thx_wifi_client.read();
-        payload = payload + String(str);
+          buf[pos] = thx_wifi_client.read();
+          pos++;
       }
     }
 
+    Serial.printf("Received %u bytes\n", pos);
+    String payload = String(buf);
     parse(payload);
 
   } else {
@@ -685,9 +682,10 @@ void THiNX::parse(String payload) {
         }
 
         if (registration.containsKey(F("timestamp"))) {
-          Serial.println("Updating time...");
+          Serial.println("Updating time: ");
           last_checkin_timestamp = (long)registration[F("timestamp")];
           last_checkin_millis = millis();
+          Serial.println(time(NULL));
         }
 
         save_device_info();
@@ -1323,7 +1321,7 @@ bool THiNX::fsck() {
     #endif
     if (!fileSystemReady) {
       Serial.println(F("* TH: Formatting SPIFFS..."));
-      fileSystemReady = SPIFFS.format();;
+      fileSystemReady = SPIFFS.format();
       Serial.println(F("* TH: Format complete, rebooting...")); Serial.flush();
       ESP.restart();
       return false;
@@ -1549,6 +1547,13 @@ void THiNX::setLocation(double lat, double lon) {
   if (wifi_connected && thinx_phase > FINALIZE) {
     Serial.println(F("*TH: LOOP » setLocation checkin"));
     checkin();
+    if (mqtt_connected == false) {
+      Serial.println(F("*TH: LOOP » CONNECT_MQTT"));
+      thinx_phase = CONNECT_MQTT;
+    } else {
+      Serial.println(F("*TH: LOOP » FINALIZE (mqtt connected)"));
+      thinx_phase = FINALIZE;
+    }
   }
 }
 
@@ -1557,6 +1562,14 @@ void THiNX::setDashboardStatus(String newstatus) {
   if (wifi_connected && thinx_phase > FINALIZE) {
     Serial.println(F("*TH: LOOP » setDashboardStatus checkin"));
     checkin();
+    if (mqtt_connected == false) {
+      Serial.println(F("*TH: LOOP » CONNECT_MQTT"));
+      thinx_phase = CONNECT_MQTT;
+      return;
+    } else {
+      Serial.println(F("*TH: LOOP » FINALIZE (mqtt connected)"));
+      thinx_phase = FINALIZE;
+    }
     if (mqtt_client) {
       String message = String("{ \"status\" : \"") + newstatus + String("\" }");
       mqtt_client->publish(mqtt_device_status_channel, message.c_str());
