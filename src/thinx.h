@@ -10,7 +10,7 @@ const char * THINX_COMMIT_ID = "0";
 const char * THINX_FIRMWARE_VERSION = "thinx-lib-esp32-arduino:2.2.179";
 const char * THINX_FIRMWARE_VERSION_SHORT = "2.2.179";
 const char * THINX_MQTT_URL = "thinx.cloud";
-const char * THINX_OWNER = "cedc16bb6bb06daaa3ff6d30666d91aacd6e3efbf9abbc151b4dcade59af7c12";
+const char * THINX_OWNER = "0";
 const char * THINX_PLATFORM  = "platformio";
 const char * THINX_UDID = "0";
 
