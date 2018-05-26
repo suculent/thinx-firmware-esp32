@@ -458,58 +458,27 @@ void THiNX::senddata(String body) {
 
 /* Secure version */
 void THiNX::send_data(String body) {
+  Serial.println("» Secure API checkin...");
+  HTTPClient http;
+  http.begin("https://thinx.cloud:7443/device/register", thx_ca_cert);
+  http.addHeader("User-Agent", "THiNX-Client");
+  http.addHeader("Content-Type", "application/json");
+  http.addHeader("Accept", "application/json");
+  http.addHeader("Origin", "device");
+  http.addHeader("Authentication", thinx_api_key);
 
-  char buf[1024];
-  int pos = 0;
-
-  Serial.println("Secure API checkin...");
-
-  // Load root certificate in DER format into WiFiClientSecure object
-  https_client.setCACert(thx_ca_cert);
-
-  if (https_client.connect(thinx_cloud_url, 7443)) {
-
-    https_client.println(F("POST /device/register HTTP/1.1"));
-    https_client.print(F("Host: ")); https_client.println(thinx_cloud_url);
-    https_client.print(F("Authentication: ")); https_client.println(thinx_api_key);
-    https_client.println(F("Accept: application/json")); // application/json
-    https_client.println(F("Origin: device"));
-    https_client.println(F("Content-Type: application/json"));
-    https_client.println(F("User-Agent: THiNX-Client"));
-    https_client.print(F("Content-Length: "));
-    https_client.println(body.length());
-    https_client.println();
-    https_client.println(body);
-
-    long interval = 30000;
-    unsigned long currentMillis = millis(), previousMillis = millis();
-
-    // Wait until client available or timeout...
-    while(!https_client.available()){
-      delay(1);
-      if( (currentMillis - previousMillis) > interval ){
-        https_client.stop();
-        return;
-      }
-      currentMillis = millis();
-    }
-
-    // Read while connected
-    while ( https_client.connected() ) {
-      if ( https_client.available() ) {
-          buf[pos] = https_client.read();
-          pos++;
-      }
-    }
-
-    Serial.printf("Received %u bytes\n", pos);
-    String payload = String(buf);
-    parse(payload);
-
+  int httpCode = http.POST(body);
+  if (httpCode > 0) {
+      String payload = http.getString();
+#ifdef __DEBUG__
+      Serial.println(httpCode);
+#endif
+      //Serial.println(payload);
+      parse(payload);
   } else {
-    Serial.println(F("*TH: API connection failed."));
-    return;
+    Serial.println("Error on HTTP request");
   }
+  http.end();
 }
 
 /*
@@ -757,10 +726,10 @@ void THiNX::parse(String payload) {
         }
 
         if (registration.containsKey(F("timestamp"))) {
-          Serial.println("Updating time: ");
+          Serial.print("Updating time (incl. timezone_offset): ");
           last_checkin_timestamp = (long)registration[F("timestamp")] + timezone_offset * 3600;
           last_checkin_millis = millis();
-          Serial.println(time(NULL));
+          Serial.println(thinx_time(NULL));
         }
 
         save_device_info();
