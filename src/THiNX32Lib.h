@@ -9,14 +9,14 @@
 
 // Provides placeholder for THINX_FIRMWARE_VERSION_SHORT
 #ifndef VERSION
-#define VERSION "2.2.179"
+#define VERSION "2.3.180"
 #endif
 
 #ifndef THX_REVISION
 #ifdef THINX_FIRMWARE_VERSION_SHORT
 #define THX_REVISION THINX_FIRMWARE_VERSION_SHORT
 #else
-#define THX_REVISION "179"
+#define THX_REVISION "180"
 #endif
 #endif
 
@@ -27,6 +27,7 @@
 #endif
 
 #include <stdio.h>
+#include <time.h>
 
 // Supported by Arduino ESP32 Framwork
 #include <SPIFFS.h>
@@ -35,16 +36,22 @@
 #include <ESPmDNS.h>
 #include <HTTPClient.h>
 #include <ESP32httpUpdate.h>
-#include <ArduinoOTA.h>
+
+#include <WiFiClientSecure.h>
 
 #include <ArduinoJson.h>
 
 // Using better than Arduino-bundled version of MQTT https://github.com/Imroy/pubsubclient
 #include <PubSubClient.h>
 
+#include "sha256.h"
+
 class THiNX {
 
 public:
+
+    // Root certificate used by thinx.cloud
+    static const char * thx_ca_cert;
 
     static double latitude;
     static double longitude;
@@ -93,10 +100,10 @@ public:
     // MQTT
     PubSubClient *mqtt_client = NULL;
 
-    String thinx_mqtt_channel();
     char mqtt_device_channel[128];
     char mqtt_device_channels[128];
     char mqtt_device_status_channel[128];
+    String thinx_mqtt_channel();
     String thinx_mqtt_channels();
     String thinx_mqtt_status_channel();
 
@@ -144,8 +151,8 @@ public:
     // Time and Date support requires checkin against THiNX API > 0.9.305x
     long epoch();                    // estimated timestamp since last checkin as
     long timezone_offset = 2;
-    String time(const char*);        // estimated current Time
-    String date(const char*);        // estimated current Date
+    String thinx_time(const char*);        // estimated current Time
+    String thinx_date(const char*);        // estimated current Date
 
     void setCheckinInterval(long interval);
     void setRebootInterval(long interval);
@@ -190,6 +197,7 @@ private:
 
     // WiFi Manager
     WiFiClient thx_wifi_client;
+    WiFiClientSecure https_client;
     int status;                             // global WiFi status
     bool once;                              // once token for initialization
 
@@ -212,6 +220,7 @@ private:
     void connect_wifi();                    // start connecting
 
     void senddata(String);
+    void send_data(String);
     void parse(String);
     void update_and_reboot(String);
 
@@ -259,4 +268,12 @@ private:
     unsigned long wifi_wait_timeout;
     int wifi_retry;
     uint8_t wifi_status;
+
+    // SHA256
+    bool check_hash(char * filename, char * expected);
+    char * expected_hash;
+    char * expected_md5;
+
+    // SSL/TLS
+    void sync_sntp();
 };
