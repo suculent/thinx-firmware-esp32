@@ -6,6 +6,7 @@ An Arduino/ESP32 library to wrap client for OTA updates and RTM (Remote Things M
 
 # What's New
 
+* HTTPS CA validation
 * Improving method naming. `setStatus` is now deprecated in favour of `setDashboardStatus`.
 
 See changelog at the end for rest.
@@ -135,11 +136,3 @@ void pushConfigCallback (String config) {
 
 You can update your device's location aquired by WiFi library or GPS module using `thx.setLocation(double lat, double lon`) from version 2.0.103 (rev88).
 Device will be forced to checked in when you change those values.
-
-# Changelog
-
-16/4/2018 - 2.2.175 - improvements in naming, synced fixes  with ESP8266 version
-
-27/11/2017 - 2.1.145 - ported to ESP32
-
-4/11/2017 - 2.0.123 - added pushConfigCallback, public MQTT methods publishStatus(message) and publish(message, topic, retain), WiFi migration example; added support for finding and using thinx-connect proxy using MDNS

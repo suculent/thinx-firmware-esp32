@@ -11,7 +11,7 @@
     "type": "git",
     "url": "https://github.com/suculent/thinx-firmware-esp32.git"
   },
-  "version": "2.2.179",
+  "version": "2.3.181",
   "frameworks": "arduino",
   "platforms": "*"
 }
