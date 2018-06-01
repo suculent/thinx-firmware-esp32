@@ -24,6 +24,7 @@ void setup() {
 #ifdef __DEBUG__
   while (!Serial); // wait for debug console connection
   Serial.println("Connecting to predefined WiFi...");
+  WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, pass);
   delay(2000);
 #endif
