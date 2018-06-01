@@ -999,8 +999,14 @@ bool THiNX::start_mqtt() {
     return false;
   }
 
-  Serial.println(F("*TH: Contacting MQTT server..."));
-  mqtt_client = new PubSubClient(thx_wifi_client, thinx_mqtt_url);
+  if (strlen(thx_ca_cert) < 2) {
+    Serial.println(F("*TH: Contacting MQTT server..."));
+    mqtt_client = new PubSubClient(thx_wifi_client, thinx_mqtt_url);
+  } else {
+    https_client.setCACert(thx_ca_cert);
+    Serial.println(F("*TH: Contacting MQTTS server..."));
+    mqtt_client = new PubSubClient(https_client, thinx_mqtt_url);    
+  }
   last_mqtt_reconnect = 0;
 
   if (strlen(thinx_api_key) < 5) {
