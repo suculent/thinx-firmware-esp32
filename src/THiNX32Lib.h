@@ -31,7 +31,8 @@
 #endif
 
 #include <stdio.h>
-#include <time.h>
+#include <time.h>                       // time() ctime()
+#include <sys/time.h>                   // struct timeval
 
 #include <EEPROM.h>
 
@@ -152,23 +153,23 @@ class THiNX {
     // MQTT Support
 
     // publish to device status topic only
-    void publishStatus(String);               // DEPRECATED, send String to status topic
-    void publishStatusUnretained(String);     // DEPRECATED, send String to status topic (unretained)
-    void publishStatusRetain(String, bool);   // DEPRECATED, send String to status topic (optionally retained)
+    void publishStatus(String);              // DEPRECATED, send String to status topic
+    void publishStatusUnretained(String);    // DEPRECATED, send String to status topic (unretained)
+    void publishStatusRetain(String, bool);  // DEPRECATED, send String to status topic (optionally retained)
     void publish_status(char *message, bool retain);  // send string to status topic, set retain
-    void publish_status_unretained(char *);   // send string to status topic, unretained
+    void publish_status_unretained(char *);  // send string to status topic, unretained
 
     // publish to specified channel
-    void publish(String, String, bool);       // DEPRECARED, send String to any channel, optinally with retain
+    void publish(String, String, bool);      // DEPRECARED, send String to any channel, optinally with retain
     void publish(char * message, char * topic, bool retain);
 
     static const char time_format[];
     static const char date_format[];
 
     // Time and Date support requires checkin against THiNX API > 0.9.305x
-    unsigned long epoch();                    // estimated timestamp since last checkin as
-    String thinx_time(const char*);        // estimated current Time
-    String thinx_date(const char*);        // estimated current Date
+    uint32_t THiNX::epoch();                // estimated timestamp since last checkin as
+    String thinx_time(const char*);         // estimated current Time
+    String thinx_date(const char*);         // estimated current Date
 
     void setCheckinInterval(long interval);
     void setRebootInterval(long interval);

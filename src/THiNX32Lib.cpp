@@ -906,9 +906,18 @@ String THiNX::thinx_mqtt_status_channel() {
   return String(mqtt_device_status_channel);
 }
 
-unsigned long THiNX::epoch() {
-  unsigned long since_last_checkin = (millis() - last_checkin_millis) / 1000;
-  return last_checkin_timestamp + since_last_checkin;
+// Will deprecate in favour of `time(nullptr)`
+uint32_t THiNX::epoch() {
+  time_t now = time(nullptr); // Epoch + TimeZone + DST
+#ifdef LOGGING
+  Serial.print("*TH: GM time: ");
+  Serial.println(now);
+  struct tm timeinfo;
+  gmtime_r(&now, &timeinfo);
+  Serial.print("*TH: GM time epoch: ");
+  Serial.print(asctime(&timeinfo));
+#endif
+  return (uint32_t)now;
 }
 
 String THiNX::thinx_time(const char* optional_format) {
@@ -1108,7 +1117,7 @@ bool THiNX::start_mqtt() {
 #endif
 #ifdef ESP32
     https_client.setCACert(thx_ca_cert);
-    mqtt_client = new PubSubClient(https_client, thinx_mqtt_url);    
+    mqtt_client = new PubSubClient(https_client, thinx_mqtt_url);
 #endif
   }
 
