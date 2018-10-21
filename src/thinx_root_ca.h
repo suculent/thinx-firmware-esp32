@@ -1,6 +1,8 @@
 // Let's Encrypt's fullchain.pem
 
-const char * THiNX::thx_ca_cert PROGMEM = \
+// should be in PROGMEM!
+
+const char * THiNX::thx_ca_cert = \
 "-----BEGIN CERTIFICATE-----\n" \
 "MIIGADCCBOigAwIBAgISA/8WE+f8Pbvahf0/y+HNjml1MA0GCSqGSIb3DQEBCwUA\n" \
 "MEoxCzAJBgNVBAYTAlVTMRYwFAYDVQQKEw1MZXQncyBFbmNyeXB0MSMwIQYDVQQD\n" \

@@ -906,20 +906,6 @@ String THiNX::thinx_mqtt_status_channel() {
   return String(mqtt_device_status_channel);
 }
 
-// Will deprecate in favour of `time(nullptr)`
-uint32_t THiNX::epoch() {
-  time_t now = time(nullptr); // Epoch + TimeZone + DST
-#ifdef LOGGING
-  Serial.print("*TH: GM time: ");
-  Serial.println(now);
-  struct tm timeinfo;
-  gmtime_r(&now, &timeinfo);
-  Serial.print("*TH: GM time epoch: ");
-  Serial.print(asctime(&timeinfo));
-#endif
-  return (uint32_t)now;
-}
-
 String THiNX::thinx_time(const char* optional_format) {
 
   char *format = strdup(time_format);
@@ -927,7 +913,7 @@ String THiNX::thinx_time(const char* optional_format) {
     format = strdup(optional_format);
   }
 
-  long stamp = THiNX::epoch();
+  long stamp = time(nullptr);
   struct tm lt;
   char res[32];
   (void) localtime_r(&stamp, &lt);
@@ -944,7 +930,7 @@ String THiNX::thinx_date(const char* optional_format) {
     format = strdup(optional_format);
   }
 
-  long stamp = THiNX::epoch();
+  long stamp = time(nullptr);
   struct tm lt;
   char res[32];
   (void) localtime_r(&stamp, &lt);
@@ -1108,7 +1094,7 @@ bool THiNX::start_mqtt() {
   } else {
     Serial.println(F("*TH: Contacting MQTT server over HTTPS..."));
 #ifdef ESP8266
-    bool res = https_client.setCACert_P(thx_ca_cert);
+    bool res = https_client.setCACert_P((const uint8_t*)thx_ca_cert, sizeof(thx_ca_cert)); // updated for axTLS, PROGMEM!
     if (res) {
       mqtt_client = new PubSubClient(https_client, thinx_mqtt_url);
     } else {

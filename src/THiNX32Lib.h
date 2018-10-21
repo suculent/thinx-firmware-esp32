@@ -167,7 +167,6 @@ class THiNX {
     static const char date_format[];
 
     // Time and Date support requires checkin against THiNX API > 0.9.305x
-    uint32_t THiNX::epoch();                // estimated timestamp since last checkin as
     String thinx_time(const char*);         // estimated current Time
     String thinx_date(const char*);         // estimated current Date
 
