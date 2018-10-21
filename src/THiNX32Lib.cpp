@@ -1005,7 +1005,7 @@ bool THiNX::start_mqtt() {
   } else {
     https_client.setCACert(thx_ca_cert);
     Serial.println(F("*TH: Contacting MQTTS server..."));
-    mqtt_client = new PubSubClient(https_client, thinx_mqtt_url);    
+    mqtt_client = new PubSubClient(https_client, thinx_mqtt_url);
   }
   last_mqtt_reconnect = 0;
 
