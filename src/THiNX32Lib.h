@@ -76,11 +76,18 @@ class THiNX {
     // Root certificate used by thinx.cloud
     static const char * thx_ca_cert;
 
+    static bool logging;                          // disable all logging to prevent interference with serial comm
+    static bool forceHTTP;                        // set to true for disabling HTTPS
+
     static double latitude;
     static double longitude;
     static String statusString;
     static String accessPointName;
     static String accessPointPassword;
+
+    static char* thinx_mqtt_url;                  // up to 1k but generally something where FQDN fits
+
+    static String lastWill;
 
 #ifdef __USE_WIFI_MANAGER__
     static WiFiManagerParameter *api_key_param;
@@ -154,7 +161,7 @@ class THiNX {
 
     void setPushConfigCallback( void (*func)(String) );
     void setFinalizeCallback( void (*func)(void) );
-    void setMQTTCallback( void (*func)(String) );
+    void setMQTTCallback( void (*func)(byte*) );
 
     int wifi_connection_in_progress;
 
@@ -172,8 +179,8 @@ class THiNX {
     static const char date_format[];
 
     // Time and Date support requires checkin against THiNX API > 0.9.305x
-    long epoch();                    // estimated timestamp since last checkin as
-    long timezone_offset = 2;
+    unsigned long epoch();                    // estimated timestamp since last checkin as
+
     String thinx_time(const char*);        // estimated current Time
     String thinx_date(const char*);        // estimated current Date
 
@@ -247,7 +254,9 @@ class THiNX {
     void parse(String);
     void update_and_reboot(String);
 
-    long checkin_timeout = 3600 * 1000;                   // next timeout millis()
+    long timezone_offset = 0;
+
+    long checkin_timeout = 3600 * 1000;     // next timeout millis()
     long checkin_interval = 3600 * 1000;    // can be set externaly, defaults to 1h
 
     long last_checkin_millis;
@@ -265,7 +274,7 @@ class THiNX {
     int all_done;                           // finalize flag
 
     void (*_config_callback)(String) = NULL;  // Called when server pushes new environment vars using MQTT
-    void (*_mqtt_callback)(String) = NULL;
+    void (*_mqtt_callback)(byte*) = NULL;
     void (*_finalize_callback)(void) = NULL;
 
     // Data Storage

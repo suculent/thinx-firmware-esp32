@@ -45,6 +45,9 @@ double THiNX::longitude = 0.0;
 String THiNX::statusString = "Registered";
 String THiNX::accessPointName = "THiNX-AP";
 String THiNX::accessPointPassword = "PASSWORD";
+String THiNX::lastWill = "{ \"status\" : \"disconnected\" }";
+
+bool THiNX::logging = false;
 
 /* Constructor */
 
@@ -62,6 +65,8 @@ THiNX::THiNX(const char * __apikey) {
 THiNX::THiNX(const char * __apikey, const char * __owner_id) {
 
   thinx_phase = INIT;
+
+  // RE: Plugins - will synchronously wait here...
 
   #ifdef __USE_WIFI_MANAGER__
   should_save_config = false;
@@ -865,7 +870,7 @@ String THiNX::thinx_mqtt_status_channel() {
   return String(mqtt_device_status_channel);
 }
 
-long THiNX::epoch() {
+unsigned long THiNX::epoch() {
   long since_last_checkin = (millis() - last_checkin_millis) / 1000;
   return last_checkin_timestamp + since_last_checkin;
 }
@@ -1056,12 +1061,17 @@ bool THiNX::start_mqtt() {
         */
 
       } else {
-        Serial.println(F("*TH: MQTT Type: String or JSON..."));
-        Serial.println(pub.payload_string());
-        parse(pub.payload_string());
+        if (logging) Serial.println(F("*TH: MQTT Message Incoming:"));
+        // Allocate payload copy buffer to allow sending responses in callback
+        uint16_t length = strlen(pub.payload_string().c_str());
+        byte* p = (byte*)malloc(length);
+        memcpy(p, pub.payload_string().c_str(), length);
+        if (logging) Serial.println(pub.payload_string());
+        parse((const char*)p);
         if (_mqtt_callback) {
-          _mqtt_callback(pub.payload_string());
+            _mqtt_callback(p);
         }
+        free(p);
       }
     }); // end-of-callback
 
@@ -1435,7 +1445,7 @@ void THiNX::setFinalizeCallback( void (*func)(void) ) {
   _finalize_callback = func;
 }
 
-void THiNX::setMQTTCallback( void (*func)(String) ) {
+void THiNX::setMQTTCallback( void (*func)(byte*) ) {
     _mqtt_callback = func;
 }
 
@@ -1452,9 +1462,10 @@ void THiNX::finalize() {
 /* This is necessary for SSL/TLS and should replace THiNX timestamp */
 void THiNX::sync_sntp() {
   Serial.print("*TH: Setting time using SNTP...");
-  configTime(8 * 3600, 0, "pool.ntp.org", "time.nist.gov");
+  // THiNX API returns timezone_offset in current DST, if applicable
+  configTime(timezone_offset * 3600, 0, "pool.ntp.org", "time.nist.gov");
   time_t now = time(nullptr);
-  while (now < 8 * 3600 * 2) {
+  while (now < timezone_offset * 3600) {
     delay(500);
     Serial.print(".");
     now = time(nullptr);
