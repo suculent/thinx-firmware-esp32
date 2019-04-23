@@ -19,6 +19,8 @@ extern "C" {
 char* THiNX::thinx_api_key;
 char* THiNX::thinx_owner_key;
 
+bool THiNX::forceHTTP = false;
+
 const char THiNX::time_format[] = "%T";
 const char THiNX::date_format[] = "%Y-%M-%d";
 
@@ -325,7 +327,7 @@ void THiNX::checkin() {
   if(!wifi_connected) {
     Serial.println(F("*TH: Cannot checkin while not connected, exiting."));
   } else {
-    if (strlen(thx_ca_cert) < 2) {
+    if (forceHTTP) {
       senddata(checkin_body()); // HTTP fallback
     } else {
       send_data(checkin_body()); // HTTPS
@@ -882,7 +884,7 @@ String THiNX::thinx_time(const char* optional_format) {
     format = strdup(optional_format);
   }
 
-  long stamp = THiNX::epoch();
+  const long stamp = THiNX::epoch();
   struct tm lt;
   char res[32];
   (void) localtime_r(&stamp, &lt);
@@ -1039,7 +1041,7 @@ bool THiNX::start_mqtt() {
     return false;
   }
 
-  if (strlen(thx_ca_cert) < 2) {
+  if (forceHTTP) {
     Serial.println(F("*TH: Contacting MQTT server..."));
     mqtt_client = new PubSubClient(thx_wifi_client, thinx_mqtt_url);
   } else {
@@ -1351,7 +1353,23 @@ void THiNX::update_and_reboot(String url) {
   #else
 
   Serial.println(F("*TH: Starting ESP8266 HTTP Update & reboot..."));
-  t_httpUpdate_return ret = ESPhttpUpdate.update(url.c_str());
+
+  t_httpUpdate_return ret;
+
+  if (forceHTTP) {
+    if (logging) Serial.println(F("*TH: using http client and port 7442 host: "));
+    if (logging) Serial.print(thinx_cloud_url);
+    if (logging) Serial.print(F("*TH: URI: "));
+    if (logging) Serial.println(url);
+    if (logging) Serial.print(F("*TH: free heap: "));
+    if (logging) Serial.println(ESP.getFreeHeap());
+    ret = ESPhttpUpdate.update(thx_wifi_client, thinx_cloud_url, 7442, url, "");
+  } else {
+    if (logging) Serial.println(F("*TH: using https client on port 7443"));
+    ret = ESPhttpUpdate.update(https_client, thinx_cloud_url, 7443, url, "");
+  }
+
+
 
   switch(ret) {
     case HTTP_UPDATE_FAILED:
@@ -1365,6 +1383,9 @@ void THiNX::update_and_reboot(String url) {
 
     case HTTP_UPDATE_OK:
     Serial.println(F("HTTP_UPDATE_OK"));
+    Serial.println(F("Firmware update completed. Rebooting soon..."));
+    notify_on_successful_update();
+    Serial.flush();
     ESP.restart();
     break;
   }
