@@ -13,18 +13,18 @@
 #define __USE_SPIFFS__
 
 // if enabled, requires TinyGSM library for network connection instead of WiFi
-#define __USE_TGSM__
+// #define __USE_TGSM__
 
 // Provides placeholder for THINX_FIRMWARE_VERSION_SHORT
 #ifndef VERSION
-#define VERSION "2.3.181"
+#define VERSION "2.5.190"
 #endif
 
 #ifndef THX_REVISION
 #ifdef THINX_FIRMWARE_VERSION_SHORT
 #define THX_REVISION THINX_FIRMWARE_VERSION_SHORT
 #else
-#define THX_REVISION "181"
+#define THX_REVISION "190"
 #endif
 #endif
 
@@ -84,8 +84,6 @@ class THiNX {
     static String statusString;
     static String accessPointName;
     static String accessPointPassword;
-
-    static char* thinx_mqtt_url;                  // up to 1k but generally something where FQDN fits
 
     static String lastWill;
 
@@ -171,6 +169,9 @@ class THiNX {
     void publishStatus(String);               // send String to status channel
     void publishStatusUnretained(String);     // send String to status channel (unretained)
     void publishStatusRetain(String, bool);   // send String to status channel (optionally retained)
+
+    void publish_status(char *message, bool retain);  // send string to status topic, set retain
+    void publish_status_unretained(char *);   // send string to status topic, unretained
 
     // publish to specified channel
     void publish(String, String, bool);       // send String to any channel, optinally with retain
