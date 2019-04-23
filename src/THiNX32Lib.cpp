@@ -594,7 +594,7 @@ void THiNX::parse(String payload) {
       // In case automatic updates are disabled,
       // we must ask user to commence firmware update.
       if (thinx_auto_update == false) {
-        if (mqtt_client != NULL) {
+        if (mqtt_client != nullptr) {
           Serial.println(F("* TH: Update availability notification..."));
           mqtt_client->publish(
             thinx_mqtt_channel().c_str(),
@@ -925,7 +925,7 @@ const char * THiNX::thinx_mac() {
 */
 
 void THiNX::notify_on_successful_update() {
-  if (mqtt_client != NULL) {
+  if (mqtt_client != nullptr) {
     Serial.println(F("*TH: notify_on_successful_update()"));
     mqtt_client->publish(
       mqtt_device_status_channel,
@@ -953,7 +953,7 @@ void THiNX::publishStatusUnretained(String message) {
 
 // Old version, leaks strings, deprecated.
 void THiNX::publishStatusRetain(String message, bool retain) {
-  if (mqtt_client != NULL) {
+  if (mqtt_client != nullptr) {
     if (retain) {
       mqtt_client->publish(
         MQTT::Publish(mqtt_device_status_channel, message.c_str()).set_retain()
@@ -968,7 +968,7 @@ void THiNX::publishStatusRetain(String message, bool retain) {
 }
 
 void THiNX::publish_status(char *message, bool retain) {
-  if (mqtt_client != NULL) {
+  if (mqtt_client != nullptr) {
     if (!mqtt_client->connected()) {
       if (logging) Serial.println(F("*TH: reconnecting MQTT..."));
       start_mqtt();
@@ -1004,7 +1004,7 @@ void THiNX::publish_status_unretained(char *message) {
 */
 
 void THiNX::publish(String message, String topic, bool retain)  {
-  if (mqtt_client != NULL) {
+  if (mqtt_client != nullptr) {
 
     if (retain == true) {
       mqtt_client->publish(
@@ -1027,7 +1027,7 @@ void THiNX::publish(String message, String topic, bool retain)  {
 
 bool THiNX::start_mqtt() {
 
-  if (mqtt_client != NULL) {
+  if (mqtt_client != nullptr) {
     mqtt_connected = mqtt_client->connected();
     if (mqtt_connected) {
       return true;
@@ -1341,7 +1341,7 @@ void THiNX::update_and_reboot(String url) {
     Serial.printf("Update Success: %u\nRebooting...\n", millis() - startTime);
 
     // Notify on reboot for update
-    if (mqtt_client != NULL) {
+    if (mqtt_client != nullptr) {
       mqtt_client->publish(
         mqtt_device_status_channel,
         thx_reboot_response.c_str()
@@ -1363,13 +1363,11 @@ void THiNX::update_and_reboot(String url) {
     if (logging) Serial.println(url);
     if (logging) Serial.print(F("*TH: free heap: "));
     if (logging) Serial.println(ESP.getFreeHeap());
-    ret = ESPhttpUpdate.update(thx_wifi_client, thinx_cloud_url, 7442, url, "");
+    ret = ESPhttpUpdate.update(thinx_cloud_url, 7442, url, "");
   } else {
     if (logging) Serial.println(F("*TH: using https client on port 7443"));
-    ret = ESPhttpUpdate.update(https_client, thinx_cloud_url, 7443, url, "");
+    ret = ESPhttpUpdate.update(thinx_cloud_url, 7442, url, "", thx_ca_cert);
   }
-
-
 
   switch(ret) {
     case HTTP_UPDATE_FAILED:

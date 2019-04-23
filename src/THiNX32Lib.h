@@ -126,7 +126,7 @@ class THiNX {
     String checkin_body();  // TODO: Refactor to C-string
 
     // MQTT
-    PubSubClient *mqtt_client = NULL;
+    PubSubClient *mqtt_client = nullptr;
 
     char mqtt_device_channel[128];
     char mqtt_device_channels[128];
