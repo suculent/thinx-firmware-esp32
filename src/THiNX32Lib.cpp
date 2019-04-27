@@ -1972,10 +1972,19 @@ void THiNX::loop() {
 * Device MAC address
 */
 
+#ifdef ESP32
 const char * THiNX::thinx_mac() {
-  sprintf(mac_string, "5CCF7F%6X", ESP.getEfuseMac());
+  sprintf(mac_string, "5CCF7F%6X", ESP.getChipId()); // prefix?
   return mac_string;
 }
+#endif
+
+#ifdef ESP8266
+const char * THiNX::thinx_mac() {
+  sprintf(mac_string, "5CCF7F%6X", ESP.getChipID());
+  return mac_string;
+}
+#endif
 
 bool THiNX::mem_check() {
   if (ESP.getFreeHeap() < 3000) { // should be at least 4K for SSL!
