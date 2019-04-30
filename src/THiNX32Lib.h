@@ -141,11 +141,7 @@ public:
     // MQTT Support
 
     // publish to device status topic only
-    void publishStatus(String);               // DEPRECATED, send String to status topic
-    void publishStatusUnretained(String);     // DEPRECATED, send String to status topic (unretained)
-    void publishStatusRetain(String, bool);   // DEPRECATED, send String to status topic (optionally retained)
-    void publish_status(char *message, bool retain);  // send string to status topic, set retain
-    void publish_status_unretained(char *);   // send string to status topic, unretained
+    void publish_status(char *message, bool retain=false);  // send string to status topic, set retain
 
     // publish to specified topic
     void publish(String, String, bool);       // send String to any channel, optinally with retain

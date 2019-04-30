@@ -1017,68 +1017,47 @@ void THiNX::notify_on_successful_update() {
 * Sends a MQTT message to Device's status topic (/owner/udid/status)
 */
 
-void THiNX::publishStatus(String message) {
-  publishStatusRetain(message, true);
-}
+void THiNX::publish_status(const char *message, bool retain=false) {
 
-// Old version, leaks strings, deprecated.
-void THiNX::publishStatusUnretained(String message) {
-  publishStatusRetain(message, false);
-}
-
-void THiNX::publish_status_unretained(char *message) {
-  publish_status(message, false);
-  mqtt_client->loop(); // kicks the MQTT immediately
-  delay(10);
-}
-
-// Old version, leaks strings, deprecated.
-void THiNX::publishStatusRetain(String message, bool retain) {
-  if (mqtt_client != nullptr) {
-    if (retain) {
-      mqtt_client->publish(
-        MQTT::Publish(mqtt_device_status_channel, message.c_str()).set_retain()
-      );
-    } else {
-      mqtt_client->publish(mqtt_device_status_channel, message.c_str());
-    }
-    mqtt_client->loop();
-    delay(10);
-  } else {
-    if (logging) Serial.println(F("*TH: MQTT not active while trying to publish retained status."));
+  // Early exit
+  if (mqtt_client == nullptr) {
+    #ifdef DEBUG
+        if (logging) Serial.println(F("*TH: MQTT not active while trying to publish retained status."));
+    #endif
+    return;
   }
-}
 
-void THiNX::publish_status(char *message, bool retain) {
-  printStackHeap("(publish_status::begin)");
-  if (mqtt_client != nullptr) {
-    printStackHeap("(mqtt_client != nullptr)");
-    if (!mqtt_client->connected()) {
-      if (logging) Serial.println(F("*TH: reconnecting MQTT..."));
-      start_mqtt();
-      unsigned long reconnect_timeout = millis() + 10000;
-      while (!mqtt_client->connected()) {
-        delay(10);
-        if (millis() > reconnect_timeout) {
-          printStackHeap("(reconnect_timeout)");
-          break;
-        }
+  // Check if connected and reconnect
+  if (!mqtt_client->connected()) {
+    printStackHeap("thx-pre-reconnect");
+    // Reconnection
+    if (logging) Serial.println(F("*TH: reconnecting MQTT in publish_status..."));
+    printStackHeap("thx-pre-start");
+    start_mqtt();
+    printStackHeap("thx-post-start");
+    unsigned long reconnect_timeout = millis() + 10000;
+    while (!mqtt_client->connected()) {
+      delay(10);
+      if (millis() > reconnect_timeout) {
+        if (logging) Serial.println(F("*TH: Reconnecting time-out!"));
+        break;
       }
     }
-    if (retain) {
-      mqtt_client->publish(
-        MQTT::Publish(mqtt_device_status_channel, message).set_retain()
-      );
-    } else {
-      mqtt_client->publish(mqtt_device_status_channel, message); // this is weird but already tried to use object in retain version and does not consume
-    }
-    printStackHeap("(publish_status::loop)");
-    mqtt_client->loop();
-    delay(10);
-  } else {
-    if (logging) Serial.println(F("*TH: MQTT not active while trying to publish retained status."));
   }
-  printStackHeap("(publish_status::end)");
+
+  if (mqtt_client->connected()) {
+    printStackHeap("thx-pre-publish-status(2)");
+    Serial.println(message);
+    mqtt_client->publish(mqtt_device_status_channel, (const uint8_t*)message, strlen(message), retain);
+    printStackHeap("thx-publish-pre-loop");
+    mqtt_client->loop();
+    printStackHeap("thx-publish-post-loop");
+  } else {
+    if (logging) Serial.println(F("*TH: Sending failed, MQTT disconnected!"));
+  }
+
+  mqtt_client->loop(); // kicks the MQTT immediately
+  delay(10);
 }
 
 /*
