@@ -1,5 +1,6 @@
 #include <Arduino.h>
 
+// #define DEBUG // takes 8k of sketch and 1+1k of stack/heap size (when measured last time)
 #define __ENABLE_WIFI_MIGRATION__ // enable automatic WiFi disconnect/reconnect on Configuration Push (THINX_ENV_SSID and THINX_ENV_PASS)
 // #define __USE_WIFI_MANAGER__ // if disabled, you need to `WiFi.begin(ssid, pass)` on your own; saves about 3% of sketch space, excludes DNSServer and WebServer
 #define __USE_SPIFFS__ // if disabled, uses EEPROM instead
@@ -144,7 +145,6 @@ public:
     void publish_status(char *message, bool retain=false);  // send string to status topic, set retain
 
     // publish to specified topic
-    void publish(String, String, bool);       // send String to any channel, optinally with retain
     void publish(char * message, char * topic, bool retain);
 
     static const char time_format[];

@@ -4,6 +4,15 @@ extern "C" {
   #include <stdlib.h>
 }
 
+// should deprecate
+#ifdef ESP8266
+extern "C" {
+  #include "user_interface.h"
+  #include <cont.h>
+  extern cont_t g_cont;
+}
+#endif
+
 #include "THiNX32Lib.h"
 
 #ifndef UNIT_TEST // IMPORTANT LINE FOR UNIT-TESTING!
