@@ -105,10 +105,11 @@ THiNX::THiNX(const char * __apikey, const char * __owner_id) {
   wifiManager.autoConnect(accessPointName.c_str());
   #endif
 
-  if (logging) Serial.print(F("\n*TH: THiNXLib rev. "));
-  if (logging) Serial.print(THX_REVISION);
-  if (logging) Serial.print(F(" version: "));
-  if (logging) Serial.println(VERSION);
+    Serial.print(F("\nTHiNXLib v"));
+    Serial.print(VERSION);
+    Serial.print(F(" rev. "));
+    Serial.println(THX_REVISION);
+  }
 
   json_buffer[0] = 0;
 
