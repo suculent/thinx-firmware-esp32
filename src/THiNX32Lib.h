@@ -1,5 +1,6 @@
 #include <Arduino.h>
 
+// #define DEBUG // takes 8k of sketch and 1+1k of stack/heap size (when measured last time)
 #define __ENABLE_WIFI_MIGRATION__ // enable automatic WiFi disconnect/reconnect on Configuration Push (THINX_ENV_SSID and THINX_ENV_PASS)
 // #define __USE_WIFI_MANAGER__ // if disabled, you need to `WiFi.begin(ssid, pass)` on your own; saves about 3% of sketch space, excludes DNSServer and WebServer
 #define __USE_SPIFFS__ // if disabled, uses EEPROM instead
@@ -7,14 +8,14 @@
 
 // Provides placeholder for THINX_FIRMWARE_VERSION_SHORT
 #ifndef VERSION
-#define VERSION "2.5.200"
+#define VERSION "2.5.226"
 #endif
 
 #ifndef THX_REVISION
 #ifdef THINX_FIRMWARE_VERSION_SHORT
 #define THX_REVISION THINX_FIRMWARE_VERSION_SHORT
 #else
-#define THX_REVISION "200"
+#define THX_REVISION "226"
 #endif
 #endif
 
@@ -141,8 +142,7 @@ public:
     // MQTT Support
 
     // publish to device status topic only
-    void publish_status(const char *message, bool retain);  // send string to status topic, set retain
-    void publish_status_unretained(char *);   // send string to status topic, unretained
+    void publish_status(char *message, bool retain=false);  // send string to status topic, set retain
 
     // publish to specified topic
     void publish(char * message, char * topic, bool retain);
