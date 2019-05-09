@@ -3,7 +3,7 @@
 
 #define __DEBUG__
 #define ARDUINO_IDE
-  
+
 const char *apikey = "4721f08a6df1a36b8517f678768effa8b3f2e53a7a1934423c1f42758dd83db5";
 const char *owner_id = "cedc16bb6bb06daaa3ff6d30666d91aacd6e3efbf9abbc151b4dcade59af7c12";
 const char *ssid = "THiNX-IoT-X";

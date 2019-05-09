@@ -6,6 +6,7 @@ An Arduino/ESP32 library to wrap client for OTA updates and RTM (Remote Things M
 
 # What's New
 
+* In the process of merging ESP8266 and ESP32 implementations to single library. One of these will soon deprecate.
 * HTTPS CA validation
 * Improving method naming. `setStatus` is now deprecated in favour of `setDashboardStatus`.
 

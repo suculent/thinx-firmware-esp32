@@ -4,11 +4,11 @@
 
 const char * THINX_ALIAS = "esp32";
 const char * THINX_API_KEY = "0";
-const char * THINX_APP_VERSION = "thinx-lib-esp32-arduino:2.3.181:2018-06-31";
+const char * THINX_APP_VERSION = "thinx-lib-esp32-arduino:2.5.200:2019-04-27";
 const char * THINX_CLOUD_URL = "thinx.cloud";
 const char * THINX_COMMIT_ID = "0";
-const char * THINX_FIRMWARE_VERSION = "thinx-lib-esp32-arduino:2.3.181";
-const char * THINX_FIRMWARE_VERSION_SHORT = "2.3.181";
+const char * THINX_FIRMWARE_VERSION = "thinx-lib-esp32-arduino:2.5.200";
+const char * THINX_FIRMWARE_VERSION_SHORT = "2.5.200";
 const char * THINX_MQTT_URL = "thinx.cloud";
 const char * THINX_OWNER = "0";
 const char * THINX_PLATFORM  = "platformio";
@@ -17,7 +17,7 @@ const char * THINX_UDID = "0";
 const long THINX_MQTT_PORT = 1883;
 const long THINX_API_PORT = 7442;
 
-const bool THINX_AUTO_UPDATE = false;
+const bool THINX_AUTO_UPDATE = true;
 const bool THINX_FORCED_UPDATE = false;
 
 // THiNX CI appends Environment Variables here:
