@@ -4,15 +4,6 @@ extern "C" {
   #include <stdlib.h>
 }
 
-// should deprecate
-#ifdef ESP8266
-extern "C" {
-  #include "user_interface.h"
-  #include <cont.h>
-  extern cont_t g_cont;
-}
-#endif
-
 #include "THiNX32Lib.h"
 
 #ifndef UNIT_TEST // IMPORTANT LINE FOR UNIT-TESTING!
@@ -2029,7 +2020,7 @@ void THiNX::loop() {
 
 #ifdef ESP32
 const char * THiNX::thinx_mac() {
-  sprintf(mac_string, "5CCF7F%6X", ESP.getEfuseMac());
+  sprintf(mac_string, "5CCF%6X", ESP.getEfuseMac());
   return mac_string;
 }
 #endif
