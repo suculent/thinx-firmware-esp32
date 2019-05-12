@@ -15,6 +15,7 @@ const char * THINX_PLATFORM  = "platformio";
 const char * THINX_UDID = "0";
 
 const long THINX_MQTT_PORT = 1883;
+const long THINX_MQTTS_PORT = 8883;
 const long THINX_API_PORT = 7442;
 
 const bool THINX_AUTO_UPDATE = false;
