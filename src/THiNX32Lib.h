@@ -137,7 +137,7 @@ public:
     void setMQTTBroker( char * url, int port );
     void setLastWill(String nextWill);        // disconnect MQTT and reconnect with different lastWill than default
 
-    int wifi_connection_in_progress;
+    bool wifi_connection_in_progress = false;
 
     // MQTT Support
 

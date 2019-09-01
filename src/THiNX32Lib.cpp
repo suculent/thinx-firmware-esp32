@@ -330,7 +330,9 @@ void THiNX::connect_wifi() {
 */
 
 void THiNX::checkin() {
-  if (!mem_check()) return;
+  if (mem_check() == false) {
+    return;
+  }
 #ifdef DEBUG
   if (logging) {
     Serial.println(F("*TH: Contacting API"));
@@ -454,9 +456,6 @@ void THiNX::fetchdata() {
   char buf[512];
   int pos = 0;
 
-  unsigned long interval = 30000;
-  unsigned long currentMillis = millis(), previousMillis = millis();
-
   // Wait until client available or timeout...
   unsigned long time_out = millis() + 30000;
   //if (logging) Serial.println(F("*TH: Waiting for client..."));
@@ -503,9 +502,6 @@ void THiNX::fetch_data() {
 
   char buf[512];
   int pos = 0;
-
-  unsigned long interval = 30000;
-  unsigned long currentMillis = millis(), previousMillis = millis();
 
   // Wait until client available or timeout...
   unsigned long time_out = millis() + 30000;
@@ -1657,7 +1653,7 @@ bool THiNX::fsck() {
   bool flashCorrectlyConfigured = true; //?
 #endif
   bool fileSystemReady = false;
-  if(flashCorrectlyConfigured) {
+  if(flashCorrectlyConfigured == true) {
     #if defined(ESP8266)
       fileSystemReady = SPIFFS.begin();
     #else
