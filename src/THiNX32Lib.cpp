@@ -52,7 +52,7 @@ String THiNX::accessPointName = "THiNX-AP";
 String THiNX::accessPointPassword = "PASSWORD";
 String THiNX::lastWill = "{ \"status\" : \"disconnected\" }";
 
-bool   THiNX::logging = true;
+bool   THiNX::logging = false;
 
 uint32_t THiNX::last_free_heap_size;
 
@@ -122,7 +122,7 @@ THiNX::THiNX(const char * __apikey, const char * __owner_id) {
 
   status = WL_IDLE_STATUS;
   wifi_connected = false;
-  mqtt_client = nullptr;
+  mqtt_client = NULL;
   mqtt_connected = false;
   performed_mqtt_checkin = false;
   wifi_connection_in_progress = false;
@@ -330,7 +330,9 @@ void THiNX::connect_wifi() {
 */
 
 void THiNX::checkin() {
-  if (!mem_check()) return;
+  if (mem_check() == false) {
+    return;
+  }
 #ifdef DEBUG
   if (logging) {
     Serial.println(F("*TH: Contacting API"));
@@ -454,9 +456,6 @@ void THiNX::fetchdata() {
   char buf[512];
   int pos = 0;
 
-  unsigned long interval = 30000;
-  unsigned long currentMillis = millis(), previousMillis = millis();
-
   // Wait until client available or timeout...
   unsigned long time_out = millis() + 30000;
   //if (logging) Serial.println(F("*TH: Waiting for client..."));
@@ -503,9 +502,6 @@ void THiNX::fetch_data() {
 
   char buf[512];
   int pos = 0;
-
-  unsigned long interval = 30000;
-  unsigned long currentMillis = millis(), previousMillis = millis();
 
   // Wait until client available or timeout...
   unsigned long time_out = millis() + 30000;
@@ -1123,21 +1119,9 @@ void THiNX::publish_status(const char *message, bool retain) {
     return;
   }
 
-  #ifdef DEBUG
-      if (logging) Serial.println(message);
-  #endif
-
-  // Happy path
-  if (mqtt_client->connected()) {
-    printStackHeap("thx-pre-publish-status(2)");
-    mqtt_client->publish(mqtt_device_status_channel, (const uint8_t*)message, strlen(message), retain);
-    printStackHeap("thx-publish-pre-loop");
-    mqtt_client->loop();
-    printStackHeap("thx-publish-post-loop");
-
-  } else {
-
-    printStackHeap("thx-pre-publish-status(R2)");
+  // Check if connected and reconnect
+  if (!mqtt_client->connected()) {
+    printStackHeap("thx-pre-reconnect");
     // Reconnection
     if (logging) Serial.println(F("*TH: reconnecting MQTT in publish_status..."));
     printStackHeap("thx-pre-start");
@@ -1147,10 +1131,25 @@ void THiNX::publish_status(const char *message, bool retain) {
     while (!mqtt_client->connected()) {
       delay(10);
       if (millis() > reconnect_timeout) {
+        if (logging) Serial.println(F("*TH: Reconnecting time-out!"));
         break;
       }
     }
   }
+
+  if (mqtt_client->connected()) {
+    printStackHeap("thx-pre-publish-status(2)");
+    Serial.println(message);
+    mqtt_client->publish(mqtt_device_status_channel, (const uint8_t*)message, strlen(message), retain);
+    printStackHeap("thx-publish-pre-loop");
+    mqtt_client->loop();
+    printStackHeap("thx-publish-post-loop");
+  } else {
+    if (logging) Serial.println(F("*TH: Sending failed, MQTT disconnected!"));
+  }
+
+  mqtt_client->loop(); // kicks the MQTT immediately
+  delay(10);
 }
 
 /*
@@ -1161,13 +1160,7 @@ void THiNX::publish(char * message, char * topic, bool retain)  {
   char channel[256] = {0};
   sprintf(channel, "%s/%s", mqtt_device_channel, topic);
   if (mqtt_client != nullptr) {
-    if (retain == true) {
-      mqtt_client->publish(
-        MQTT::Publish(channel, message).set_retain()
-      );
-    } else {
-      mqtt_client->publish(channel, message);
-    }
+    mqtt_client->publish(mqtt_device_status_channel, (const uint8_t*)message, strlen(message), retain);
     mqtt_client->loop();
     delay(10);
   } else {
@@ -1211,14 +1204,13 @@ bool THiNX::start_mqtt() {
   }
 
   if (forceHTTP == true) {
-//#ifdef DEBUG
+#ifdef DEBUG
     if (logging) Serial.println(F("*TH: Initializing new MQTT client."));
-//#endif
+#endif
     mqtt_client = new PubSubClient(http_client, thinx_mqtt_url, THINX_MQTT_PORT);
   } else {
-    https_client.setCACert(thx_ca_cert);
-    //bool res = https_client.verify((const char*)fingerprint, "rtm.thinx.cloud");
-    if (true) {
+    bool res = true; // https_client.setCACert(thx_ca_cert); // should be loadCACert from file
+    if (res) { // result of SSL certificate setting ignored so far
 #ifdef DEBUG
       if (logging) Serial.println(F("*TH: Initializing new MQTTS client."));
 #endif
@@ -1250,14 +1242,14 @@ bool THiNX::start_mqtt() {
 
       // Stream has been never tested so far...
       if (pub.has_stream()) {
-/*
+
+        /*
 #ifdef DEBUG
         if (logging) Serial.println(F("*TH: MQTT Type: Stream..."));
 #endif
         uint32_t startTime = millis();
         uint32_t size = pub.payload_len();
-        // ret = ESPhttpUpdate.update(http_client, thinx_cloud_url, 7442, url, "");
-        if ( ESP.update(*pub.payload_stream(), size, true, false) ) {
+        if ( ESP.updateSketch(*pub.payload_stream(), size, true, false) ) {
           // Notify on reboot for update
           mqtt_client->publish(
             mqtt_device_status_channel,
@@ -1273,7 +1265,8 @@ bool THiNX::start_mqtt() {
             mqtt_device_status_channel,
             "{ \"status\" : \"mqtt_update_failed\" }"
           );
-        }*/
+        }
+        */
 
       } else {
         // if (logging) Serial.println(F("*TH: MQTT Message Incoming:"));
@@ -1660,7 +1653,7 @@ bool THiNX::fsck() {
   bool flashCorrectlyConfigured = true; //?
 #endif
   bool fileSystemReady = false;
-  if(flashCorrectlyConfigured) {
+  if(flashCorrectlyConfigured == true) {
     #if defined(ESP8266)
       fileSystemReady = SPIFFS.begin();
     #else
