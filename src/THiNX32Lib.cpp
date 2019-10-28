@@ -1191,9 +1191,7 @@ bool THiNX::start_mqtt() {
 
   if (mqtt_client != nullptr) {
     mqtt_connected = mqtt_client->connected();
-    if (mqtt_connected) {
-      return true;
-    }
+    return mqtt_connected;
   }
 
   if (strlen(thinx_udid) < 4) {
