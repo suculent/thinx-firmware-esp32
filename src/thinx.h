@@ -4,11 +4,11 @@
 
 const char * THINX_ALIAS = "esp32";
 const char * THINX_API_KEY = "0";
-const char * THINX_APP_VERSION = "thinx-lib-esp32-arduino:2.5.231:2019-05-12";
+const char * THINX_APP_VERSION = "thinx-lib-esp32-arduino:2.5.233:2019-10-29";
 const char * THINX_CLOUD_URL = "thinx.cloud";
 const char * THINX_COMMIT_ID = "0";
-const char * THINX_FIRMWARE_VERSION = "thinx-lib-esp32-arduino:2.5.231";
-const char * THINX_FIRMWARE_VERSION_SHORT = "2.5.231";
+const char * THINX_FIRMWARE_VERSION = "thinx-lib-esp32-arduino:2.5.233";
+const char * THINX_FIRMWARE_VERSION_SHORT = "2.5.233";
 const char * THINX_MQTT_URL = "thinx.cloud";
 const char * THINX_OWNER = "0";
 const char * THINX_PLATFORM  = "platformio";
