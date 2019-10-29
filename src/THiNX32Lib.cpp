@@ -285,6 +285,16 @@ void THiNX::connect_wifi() {
     return;
   }
 
+  if (strlen(THINX_ENV_SSID) == 0) {
+    Serial.println(F("THINX_ENV_SSID not set!"));
+    return;
+  }
+
+    if (strlen(THINX_ENV_PASS) == 0) {
+      Serial.println(F("THINX_ENV_PASS not set!"));
+    return;
+  }
+
   if (wifi_connection_in_progress) {
     if (wifi_retry > 1000) {
       if (WiFi.getMode() == WIFI_STA) {
@@ -296,7 +306,7 @@ void THiNX::connect_wifi() {
         wifi_connected = true;
         return;
       } else {
-        if (strlen(THINX_ENV_SSID) > 2) {
+        if ((strlen(THINX_ENV_SSID) > 2) && (strlen(THINX_ENV_PASS) > 2)) {
           WiFi.mode(WIFI_STA);
           WiFi.begin(THINX_ENV_SSID, THINX_ENV_PASS);
           wifi_connection_in_progress = true; // prevents re-entering connect_wifi()
@@ -1189,11 +1199,9 @@ bool THiNX::start_mqtt() {
   if (logging) Serial.println(F("*TH: start_mqtt()"));
 #endif
 
-  if (mqtt_client != nullptr) {
+  if (mqtt_client) {
     mqtt_connected = mqtt_client->connected();
-    if (mqtt_connected) {
-      return true;
-    }
+    return mqtt_connected;
   }
 
   if (strlen(thinx_udid) < 4) {
@@ -1207,7 +1215,9 @@ bool THiNX::start_mqtt() {
 #ifdef DEBUG
     if (logging) Serial.println(F("*TH: Initializing new MQTT client."));
 #endif
-    mqtt_client = new PubSubClient(http_client, thinx_mqtt_url, THINX_MQTT_PORT);
+    if (mqtt_client == nullptr) {
+      mqtt_client = new PubSubClient(http_client, thinx_mqtt_url, THINX_MQTT_PORT);
+    }
   } else {
     bool res = true; // https_client.setCACert(thx_ca_cert); // should be loadCACert from file
     if (res) { // result of SSL certificate setting ignored so far
@@ -1870,7 +1880,7 @@ void THiNX::loop() {
     if (WiFi.status() != WL_CONNECTED) {
       wifi_connected = false;
       if (wifi_connection_in_progress != true) {
-        //if (logging) Serial.println(F("*TH: CONNECTING »"));
+        if (logging) Serial.println(F("*TH: CONNECTING »"));
         connect(); // blocking
         wifi_connection_in_progress = true;
         wifi_connection_in_progress = true;
