@@ -18,6 +18,7 @@ install:
   # - arduino --install-library "Adafruit SleepyDog Library"
   # - arduino --install-library "Adafruit FONA Library"
 script:
+  - cd examples/thinx-esp32-example
   - build_main_platforms
 notifications:
   email:
