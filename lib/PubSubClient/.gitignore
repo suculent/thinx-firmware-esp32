@@ -1,0 +1,6 @@
+*~
+*#
+/docs
+tests/*.o
+tests/bin/*
+tests/src/lib/*.o
