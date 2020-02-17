@@ -6,8 +6,6 @@ extern "C" {
 
 #include "THiNX32Lib.h"
 
-#ifndef UNIT_TEST // IMPORTANT LINE FOR UNIT-TESTING!
-
 #ifndef THINX_FIRMWARE_VERSION_SHORT
 #define THINX_FIRMWARE_VERSION_SHORT VERSION
 #endif
@@ -350,7 +348,7 @@ void THiNX::connect_wifi() {
       }
     }
   }
-  #endif
+  #endif // __USE_WIFI_MANAGER__
 }
 
 /*
@@ -1030,7 +1028,7 @@ void THiNX::parse(const char * pload) {
       }
 
 
-#ifdef __ENABLE_WIFI_MIGRATION__
+#ifdef __USE_WIFI_MANAGER__
       //
       // Built-in support for WiFi migration
       //
@@ -1060,7 +1058,7 @@ void THiNX::parse(const char * pload) {
 #endif
         }
       }
-#endif
+#endif // #ifdef __USE_WIFI_MANAGER__
       // Forward update body to the library user
       if (_config_callback != NULL) {
         _config_callback(body);
@@ -1171,8 +1169,7 @@ void THiNX::publish_status(const char *message, bool retain) {
   }
 
   // Check if connected and reconnect
-      if (logging) Serial.print("*TH > "); Serial.println(message);
-  #endif
+  if (logging) Serial.print("*TH > "); Serial.println(message);
 
   if (mqtt_client->connected()) {
     mqtt_client->publish(mqtt_device_status_channel, (const uint8_t*)message, strlen(message), retain);
@@ -1441,7 +1438,7 @@ void THiNX::restore_device_info() {
   }
 
   f.readBytesUntil('\r', json_buffer, sizeof(json_buffer));
-  #endif
+  #endif // USE_SPIFFS
 
   DynamicJsonDocument config_doc(512); // tightly enough to fit ott as well
   auto error = deserializeJson(config_doc, (char*)json_buffer);
@@ -1936,7 +1933,7 @@ void THiNX::loop() {
           thinx_mqtt_url = strdup(String(MDNS.hostname(0)).c_str());
         }
       }
-#endif
+#endif // __DISABLE_PROXY__
 
       thinx_phase = CONNECT_API;
       return;
@@ -2125,5 +2122,3 @@ bool THiNX::mem_check() {
   }
   return true;
 }
-
-#endif // IMPORTANT LINE FOR UNIT-TESTING!
