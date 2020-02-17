@@ -1453,8 +1453,6 @@ void THiNX::restore_device_info() {
 
   } else {
 
-    JsonObject config = config_doc.as<JsonObject>();
-
     const char* owner = config_doc["owner"];
     if (owner) {
       thinx_owner = strdup(owner);
@@ -2106,7 +2104,7 @@ void THiNX::loop() {
 
 #ifdef ESP32
 const char * THiNX::thinx_mac() {
-  sprintf(mac_string, "5CCF7F%.6X", ESP.getEfuseMac());
+  sprintf(mac_string, "5CCF7F%.6X", (unsigned int) ESP.getEfuseMac());
   return mac_string;
 }
 #endif
