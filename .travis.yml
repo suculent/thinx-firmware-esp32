@@ -14,9 +14,11 @@ env:
 before_install:
   - source <(curl -SLs https://raw.githubusercontent.com/adafruit/travis-ci-arduino/master/install.sh)
 install:
-  # Note that every library should be installed in a seperate command
+  # Note that every library could be installed in a separate command as follows:
   # - arduino --install-library "Adafruit SleepyDog Library"
   # - arduino --install-library "Adafruit FONA Library"
+  # Or insteady by moving/copying all suggested project libraries to the build system library folder:
+  - cp -R ./lib/** /home/travis/arduino_ide/libraries/
 script:
   - bash ./travis-prebuild.sh # allows skipping unsupported platforms
   - cd examples/thinx-esp32-example
