@@ -11,7 +11,6 @@
 #pragma GCC diagnostic ignored "-Werror=reorder"
 #pragma GCC diagnostic ignored "-Werror=switch"
 #pragma GCC diagnostic ignored "-Werror=return-type"
-#pragma GCC diagnostic pop
 
 #if defined(ESP8266) || defined(ESP32)
 #include <functional>
@@ -205,7 +204,6 @@ public:
    bool unsubscribe(MQTT::Unsubscribe &unsub);
 };
 
-
-#endif
+#pragma GCC diagnostic pop
 
 #endif
