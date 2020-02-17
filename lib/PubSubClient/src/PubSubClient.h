@@ -7,6 +7,12 @@
 #ifndef PubSubClient_h
 #define PubSubClient_h
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Werror=reorder"
+#pragma GCC diagnostic ignored "-Werror=switch"
+#pragma GCC diagnostic ignored "-Werror=return-type"
+#pragma GCC diagnostic pop
+
 #if defined(ESP8266) || defined(ESP32)
 #include <functional>
 #include <pgmspace.h>
@@ -199,5 +205,7 @@ public:
    bool unsubscribe(MQTT::Unsubscribe &unsub);
 };
 
+
+#endif
 
 #endif

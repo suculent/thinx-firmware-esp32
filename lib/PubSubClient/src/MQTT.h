@@ -17,6 +17,11 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Werror=reorder"
+#pragma GCC diagnostic ignored "-Werror=switch"
+#pragma GCC diagnostic ignored "-Werror=return-type"
+
 #pragma once
 
 #include <stdint.h>
@@ -58,7 +63,7 @@ namespace MQTT {
     Reserved,		// Reserved
   };
 
-  //! The Quality of Service (QoS) level is an agreement between sender and receiver of a message regarding the guarantees of delivering a message.  
+  //! The Quality of Service (QoS) level is an agreement between sender and receiver of a message regarding the guarantees of delivering a message.
   enum Qos {
       QOS0 = 0,  //! At most once
       QOS1 = 1,  //! At least once
@@ -577,3 +582,4 @@ namespace MQTT {
 
 }
 
+#pragma GCC diagnostic pop

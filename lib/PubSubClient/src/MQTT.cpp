@@ -20,6 +20,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <Arduino.h>
 #include "MQTT.h"
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Werror=reorder"
+#pragma GCC diagnostic ignored "-Werror=switch"
+#pragma GCC diagnostic ignored "-Werror=return-type"
+
 namespace MQTT {
   //! Write a 16-bit value, big-endian order
   void write(uint8_t *buf, uint32_t& bufpos, uint16_t data) {
@@ -828,3 +833,5 @@ namespace MQTT {
 
 
 } // namespace MQTT
+
+#pragma GCC diagnostic pop
