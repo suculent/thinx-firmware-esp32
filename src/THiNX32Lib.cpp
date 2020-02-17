@@ -98,6 +98,10 @@ THiNX::THiNX(const char * __apikey) {
 
 THiNX::THiNX(const char * __apikey, const char * __owner_id) {
 
+#ifdef DEBUG
+  if (logging) printStackHeap("before-init");
+#endif
+
   thinx_phase = INIT;
 
   #ifdef __USE_WIFI_MANAGER__
@@ -2124,4 +2128,4 @@ bool THiNX::mem_check() {
   return true;
 }
 
-// #endif // IMPORTANT LINE FOR UNIT-TESTING!
+#endif // IMPORTANT LINE FOR UNIT-TESTING!
