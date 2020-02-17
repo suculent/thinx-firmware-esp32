@@ -1,6 +1,6 @@
 #include <Arduino.h>
 
-#define DEBUG // takes 8k of sketch and 1+1k of stack/heap size (when measured last time)
+//#define DEBUG // takes 8k of sketch and 1+1k of stack/heap size (when measured last time)
 #define __ENABLE_WIFI_MIGRATION__ // enable automatic WiFi disconnect/reconnect on Configuration Push (THINX_ENV_SSID and THINX_ENV_PASS)
 // #define __USE_WIFI_MANAGER__ // if disabled, you need to `WiFi.begin(ssid, pass)` on your own; saves about 3% of sketch space, excludes DNSServer and WebServer
 #define __USE_SPIFFS__ // if disabled, uses EEPROM instead
@@ -8,14 +8,14 @@
 
 // Provides placeholder for THINX_FIRMWARE_VERSION_SHORT
 #ifndef VERSION
-#define VERSION "2.5.233"
+#define VERSION "2.8.243"
 #endif
 
 #ifndef THX_REVISION
 #ifdef THINX_FIRMWARE_VERSION_SHORT
 #define THX_REVISION THINX_FIRMWARE_VERSION_SHORT
 #else
-#define THX_REVISION "226"
+#define THX_REVISION "243"
 #endif
 #endif
 
@@ -58,6 +58,7 @@ public:
     static String accessPointPassword;
 
     static char* thinx_mqtt_url;
+    static char* thinx_cloud_url;
 
     static String lastWill;
 
@@ -98,7 +99,7 @@ public:
     void loop();
 
     char mac_string[17];
-    char* generate_checkin_body();                  // TODO: Refactor to C-string
+    void generate_checkin_body();
 
     // MQTT
     PubSubClient * mqtt_client = nullptr;
@@ -112,7 +113,6 @@ public:
     // Values imported on from thinx.h
     const char* app_version;                  // max 80 bytes
     const char* available_update_url;         // up to 1k
-    const char* thinx_cloud_url;              // up to 1k but generally something where FQDN fits
     const char* thinx_commit_id;              // 40 bytes + 1
     const char* thinx_firmware_version_short; // 14 bytes
     const char* thinx_firmware_version;       // max 80 bytes
@@ -133,11 +133,13 @@ public:
 
     void setPushConfigCallback( void (*func)(String) );
     void setFinalizeCallback( void (*func)(void) );
+    void setFirmwareUpdateCallback( void (*func)(void) );
     void setMQTTCallback( void (*func)(byte*) );
     void setMQTTBroker( char * url, int port );
     void setLastWill(String nextWill);        // disconnect MQTT and reconnect with different lastWill than default
 
     bool wifi_connection_in_progress = false;
+    unsigned long wifi_conection_timeout = 0;
 
     // MQTT Support
 
@@ -242,6 +244,7 @@ private:
 
     void (*_config_callback)(String) = NULL;  // Called when server pushes new environment vars using MQTT
     void (*_mqtt_callback)(byte*) = NULL;
+    void (*_update_callback)(void) = NULL;
 
     // Data Storage
     void import_build_time_constants();     // sets variables from thinx.h file
@@ -284,6 +287,5 @@ private:
     void do_deferred_update();
 
     bool mem_check();
-    void deviceInfo();
 
 };
