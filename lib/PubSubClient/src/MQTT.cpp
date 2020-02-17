@@ -21,9 +21,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "MQTT.h"
 
 #pragma GCC diagnostic push
-#pragma GCC diagnostic warning "-Werror=reorder"
-#pragma GCC diagnostic warning "-Werror=switch"
-#pragma GCC diagnostic warning "-Werror=return-type"
+#pragma GCC diagnostic warning "-Wreorder"
+#pragma GCC diagnostic warning "-Wswitch"
+#pragma GCC diagnostic warning "-Wreturn-type"
 
 namespace MQTT {
   //! Write a 16-bit value, big-endian order

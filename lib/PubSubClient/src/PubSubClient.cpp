@@ -5,9 +5,9 @@
 */
 
 #pragma GCC diagnostic push
-#pragma GCC diagnostic warning "-Werror=reorder"
-#pragma GCC diagnostic warning "-Werror=switch"
-#pragma GCC diagnostic warning "-Werror=return-type"
+#pragma GCC diagnostic warning "-Wreorder"
+#pragma GCC diagnostic warning "-Wswitch"
+#pragma GCC diagnostic warning "-Wreturn-type"
 
 #include "PubSubClient.h"
 #include <string.h>
