@@ -20,7 +20,8 @@ install:
 script:
   - bash ./travis-prebuild.sh # allows skipping unsupported platforms
   - cd examples/thinx-esp32-example
-  - build_main_platforms
+  - build_platform esp32
+  # - build_main_platforms
 notifications:
   email:
     on_success: change
