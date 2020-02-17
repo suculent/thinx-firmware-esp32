@@ -4,6 +4,15 @@
   http://knolleary.net
 */
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Werror=reorder"
+
+int main(int argc, const char *argv[])
+{
+    while (*++argc) puts(*argv);
+    return 0;
+}
+
 #include "PubSubClient.h"
 #include <string.h>
 
@@ -396,3 +405,5 @@ bool PubSubClient::connected() {
 
    return rc;
 }
+
+#pragma GCC diagnostic pop
