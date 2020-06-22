@@ -2,7 +2,7 @@ language: c
 sudo: false
 cache:
   directories:
-    - ~/arduino_ide
+    # - ~/arduino_ide caches libraries
     - ~/.arduino15/packages/
 
 git:
