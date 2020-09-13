@@ -82,8 +82,7 @@ public:
 #endif
 
     THiNX();
-    THiNX(const char * __apikey, const char * __owner_id);
-    THiNX(const char * __apikey);
+    THiNX(const char * __apikey, const char * __owner_id); // designated constructor
 
     ESPCompatibility * esp;
 

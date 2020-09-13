@@ -90,11 +90,9 @@ THiNX::THiNX() {
 
 /* Designated Initializers */
 
-THiNX::THiNX(const char * __apikey) {
+THiNX::THiNX(const char * __apikey, const char * __owner_id) : THiNX() {
 
-  THiNX(__apikey, "");
-
-  /* TODO: FIXME Initializer list and privatization/refactoring stuff 
+/* TODO: FIXME Initializer list and privatization/refactoring stuff 
 
   1. Consider making stuff private
   2. Consider removing thinx_ prefix where appropriate
@@ -136,13 +134,7 @@ THiNX::THiNX(const char * __apikey) {
   this–>mqtt_device_channels
   this–>mqtt_device_channel
   this–>thinx_phase
-  */
-
-}
-
-THiNX::THiNX(const char * __apikey, const char * __owner_id) {
-
-  /* 
+  
   this->wifi_status
   this–>wifi_wait_timeout
   this–>wifi_wait_start
