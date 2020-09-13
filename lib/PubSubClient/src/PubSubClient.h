@@ -7,10 +7,12 @@
 #ifndef PubSubClient_h
 #define PubSubClient_h
 
-#pragma GCC diagnostic push
 #pragma GCC diagnostic warning "-Wreorder"
 #pragma GCC diagnostic warning "-Wswitch"
-#pragma GCC diagnostic warning "-Wreturn-type"
+#pragma GCC diagnostic warning "-Wformat="
+#pragma GCC diagnostic warning "-Wunused-value"
+#pragma GCC diagnostic warning "-Wunused-variable"
+#pragma GCC diagnostic warning "-Wwrite-strings"
 
 #if defined(ESP8266) || defined(ESP32)
 #include <functional>
@@ -31,19 +33,23 @@ public:
 #endif
 
 private:
-   IPAddress server_ip;
-   String server_hostname;
-   uint16_t server_port;
+
+   bool pingOutstanding;
+
    callback_t _callback;
 
    Client &_client;
    MQTT::PacketParser _parser;
-   uint16_t nextMsgId, keepalive;
    uint8_t _max_retries;
+   bool isSubAckFound;
+
+   IPAddress server_ip;
+   uint16_t server_port;
+   String server_hostname;
+
+   uint16_t nextMsgId, keepalive;
    unsigned long lastOutActivity;
    unsigned long lastInActivity;
-   bool pingOutstanding;
-   bool isSubAckFound;
 
    //! Receive a message from the client
    /*!
@@ -204,6 +210,5 @@ public:
    bool unsubscribe(MQTT::Unsubscribe &unsub);
 };
 
-#pragma GCC diagnostic pop
 
 #endif

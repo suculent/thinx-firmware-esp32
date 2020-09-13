@@ -17,12 +17,14 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic warning "-Wreorder"
-#pragma GCC diagnostic warning "-Wswitch"
-#pragma GCC diagnostic warning "-Wreturn-type"
-
 #pragma once
+
+// switch to warnings in pedantic compiler environment
+#pragma GCC diagnostic warning "-Wreorder"
+#pragma GCC diagnostic warning "-Wformat="
+#pragma GCC diagnostic warning "-Wunused-value"
+#pragma GCC diagnostic warning "-Wunused-variable"
+#pragma GCC diagnostic warning "-Wwrite-strings"
 
 #include <stdint.h>
 #if defined(ESP8266) || defined(ESP32)
@@ -60,7 +62,7 @@ namespace MQTT {
     PINGREQ,		// PING Request
     PINGRESP,		// PING Response
     DISCONNECT,		// Client is Disconnecting
-    Reserved,		// Reserved
+    Reserved		// Reserved
   };
 
   //! The Quality of Service (QoS) level is an agreement between sender and receiver of a message regarding the guarantees of delivering a message.
@@ -273,8 +275,8 @@ namespace MQTT {
   class Publish : public Message {
   protected:
     String _topic;
-    uint8_t *_payload;
-    uint32_t _payload_len;
+    uint8_t *_payload = nullptr;
+    uint32_t _payload_len = 0;
     bool _payload_mine;
 
     uint32_t variable_header_length(void) const;
@@ -581,5 +583,3 @@ namespace MQTT {
   };
 
 }
-
-#pragma GCC diagnostic pop

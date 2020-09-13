@@ -20,9 +20,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <Arduino.h>
 #include "MQTT.h"
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic warning "-Wreorder"
 #pragma GCC diagnostic warning "-Wswitch"
+#pragma GCC diagnostic warning "-Wreorder"
+#pragma GCC diagnostic warning "-Wformat="
+#pragma GCC diagnostic warning "-Wunused-value"
+#pragma GCC diagnostic warning "-Wunused-variable"
+#pragma GCC diagnostic warning "-Wwrite-strings"
 #pragma GCC diagnostic warning "-Wreturn-type"
 
 namespace MQTT {
@@ -129,9 +132,24 @@ namespace MQTT {
     buf[bufpos] = _type << 4;
 
     switch (_type) {
+
+    case None:
+    case CONNECT:
+    case CONNACK:
+    case PUBACK:
+    case PUBREC:
+    case PUBCOMP:
+    case SUBACK:
+    case UNSUBACK:
+    case PINGREQ:
+    case PINGRESP:
+    case DISCONNECT:
+    case Reserved: break;
+
     case PUBLISH:
       buf[bufpos] |= _flags & 0x0f;
       break;
+
     case PUBREL:
     case SUBSCRIBE:
     case UNSUBSCRIBE:
@@ -325,29 +343,35 @@ namespace MQTT {
   Message* PacketParser::parse(void) {
     while (_state != State::HaveObject) {
       switch (_state) {
-      case State::ReadTypeFlags:
-	if (!_read_type_flags())
-	  return nullptr;
 
-	break;
+        case State::ReadTypeFlags:
+        if (!_read_type_flags())
+        return nullptr;
 
-      case State::ReadLength:
-	if (!_read_length())
-	  return nullptr;
+        break;
 
-	break;
+        case State::ReadLength:
+        if (!_read_length())
+        return nullptr;
 
-      case State::ReadContents:
-	if (!_read_remaining())
-	  return nullptr;
+        break;
 
-	break;
+        case State::ReadContents:
+        if (!_read_remaining())
+        return nullptr;
 
-      case State::CreateObject:
-	if (!_construct_object())
-	  return nullptr;
+        break;
 
-	break;
+        case State::CreateObject:
+        if (!_construct_object())
+        return nullptr;
+
+        break;
+
+        case State::HaveObject:
+        return nullptr;
+
+        break;
       }
     }
 
@@ -597,15 +621,15 @@ namespace MQTT {
 
   message_type Publish::response_type(void) const {
     switch (qos()) {
-    case 0:
-      return None;
-    case 1:
-      return PUBACK;
     case 2:
       return PUBREC;
+    case 1:
+      return PUBACK;
+    case 0:
+    default:
+      return None;
     }
   }
-
 
   // PublishAck class
   PublishAck::PublishAck(uint16_t pid) :
@@ -833,5 +857,3 @@ namespace MQTT {
 
 
 } // namespace MQTT
-
-#pragma GCC diagnostic pop

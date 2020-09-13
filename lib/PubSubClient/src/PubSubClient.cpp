@@ -4,13 +4,16 @@
   http://knolleary.net
 */
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic warning "-Wreorder"
-#pragma GCC diagnostic warning "-Wswitch"
-#pragma GCC diagnostic warning "-Wreturn-type"
-
 #include "PubSubClient.h"
 #include <string.h>
+
+#pragma GCC diagnostic warning "-Wswitch"
+#pragma GCC diagnostic warning "-Wreorder"
+#pragma GCC diagnostic warning "-Wformat="
+#pragma GCC diagnostic warning "-Wunused-value"
+#pragma GCC diagnostic warning "-Wunused-variable"
+#pragma GCC diagnostic warning "-Wwrite-strings"
+#pragma GCC diagnostic warning "-Wreturn-type"
 
 PubSubClient::PubSubClient(Client& c) :
   _callback(nullptr),
@@ -107,45 +110,62 @@ MQTT::Message* PubSubClient::_send_message_with_response(MQTT::Message& msg) {
 
 void PubSubClient::_process_message(MQTT::Message* msg) {
   switch (msg->type()) {
-  case MQTT::PUBLISH:
+    case MQTT::PUBLISH:
     {
       MQTT::Publish *pub = static_cast<MQTT::Publish*>(msg);	// RTTI is disabled on embedded, so no dynamic_cast<>()
 
       if (_callback)
-	_callback(*pub);
+      _callback(*pub);
 
       if (pub->qos() == 1) {
-	MQTT::PublishAck puback(pub->packet_id());
-	_send_message(puback);
+        MQTT::PublishAck puback(pub->packet_id());
+        _send_message(puback);
 
       } else if (pub->qos() == 2) {
 
-	{
-	  MQTT::PublishRec pubrec(pub->packet_id());
-	  MQTT::Message *response = _send_message_with_response(pubrec);
-	  if (response == nullptr)
-	    return;
-	  delete response;
-	}
+        {
+          MQTT::PublishRec pubrec(pub->packet_id());
+          MQTT::Message *response = _send_message_with_response(pubrec);
+          if (response == nullptr)
+          return;
+          delete response;
+        }
 
-	{
-	  MQTT::PublishComp pubcomp(pub->packet_id());
-	  _send_message(pubcomp);
-	}
+        {
+          MQTT::PublishComp pubcomp(pub->packet_id());
+          _send_message(pubcomp);
+        }
       }
     }
     break;
 
-  case MQTT::PINGREQ:
+    case MQTT::PINGREQ:
     {
       MQTT::PingResp pr;
       _send_message(pr);
     }
     break;
 
-  case MQTT::PINGRESP:
+    case MQTT::PINGRESP:
     pingOutstanding = false;
+    break;
+
+    case MQTT::CONNECT:
+    case MQTT::CONNACK:
+    case MQTT::PUBACK:
+    case MQTT::PUBREC:
+    case MQTT::PUBREL:
+    case MQTT::PUBCOMP:
+    case MQTT::SUBSCRIBE:
+    case MQTT::SUBACK:
+    case MQTT::UNSUBSCRIBE:
+    case MQTT::UNSUBACK:
+    case MQTT::DISCONNECT:
+    case MQTT::Reserved:
+    case MQTT::None:
+    break;
   }
+
 }
 
 MQTT::Message* PubSubClient::_wait_for(MQTT::message_type wait_type, uint16_t wait_pid) {
@@ -401,5 +421,3 @@ bool PubSubClient::connected() {
 
    return rc;
 }
-
-#pragma GCC diagnostic pop
