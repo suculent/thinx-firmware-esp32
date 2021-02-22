@@ -7,11 +7,11 @@
 const char * THINX_ALIAS = "unnamed";
 const char * THINX_API_KEY = "";
 const char * THINX_APP_VERSION = "thinx-lib-esp32-arduino:" T_VERSION ":" __DATE__;
-const char * THINX_CLOUD_URL = "console.keyguru.eu";
+const char * THINX_CLOUD_URL = "app.thinx.cloud";
 const char * THINX_COMMIT_ID = "0"; // serves as a safety check to prevent re-flashing with same commit ID, may deprecate in favour of flavouring
 const char * THINX_FIRMWARE_VERSION = "thinx-lib-esp32-arduino" T_VERSION;
 const char * THINX_FIRMWARE_VERSION_SHORT = T_VERSION;
-const char * THINX_MQTT_URL = "console.keyguru.eu";
+const char * THINX_MQTT_URL = "app.thinx.cloud";
 const char * THINX_OWNER = "0";
 const char * THINX_PLATFORM  = "platformio";
 const char * THINX_UDID = "0";
