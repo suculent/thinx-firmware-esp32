@@ -2,7 +2,7 @@
 
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 
-#define DEBUG                     // takes 8k of sketch and 1+1k of stack/heap size (when measured last time)
+
 #define ENABLE_HTTPS
 #define __ENABLE_WIFI_MIGRATION__ // enable automatic WiFi disconnect/reconnect on Configuration Push (THINX_ENV_SSID and THINX_ENV_PASS)
 // #define __USE_WIFI_MANAGER__ // if disabled, you need to `WiFi.begin(ssid, pass)` on your own; saves about 3% of sketch space, excludes DNSServer and WebServer

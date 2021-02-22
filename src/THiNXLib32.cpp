@@ -760,7 +760,9 @@ void THiNX::fetch_data_secure(WiFiClientSecure *client)
   }
 
 #ifdef DEBUG
-  //if (logging) Serial.println();
+  if (logging) Serial.print("*TH: [REQUEST] ");
+  if (logging) Serial.println(buf);
+  if (logging) Serial.println();
 #endif
   buf[pos] = '\0'; // add null termination for any case...
   client->stop();  // ??
@@ -800,7 +802,7 @@ void THiNX::send_data_secure(const String &body)
     //https_client.setBufferSizes(512, 512);
   }
 
-  Serial.print("[HTTPS]");
+  Serial.print("*TH: [HTTPS] ");
   Serial.print(thinx_cloud_url); Serial.print(":"); Serial.println(443);
 
   if (!https_client.connect(thinx_cloud_url, 443))
