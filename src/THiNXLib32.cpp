@@ -2,12 +2,9 @@
 
 extern "C"
 {
-#include "user_interface.h"
 #include "thinx.h"
-#include <cont.h>
 #include <time.h>
 #include <stdlib.h>
-  extern cont_t g_cont;
 }
 
 #include "THiNXLib32.h"
@@ -715,7 +712,7 @@ void THiNX::fetch_data(WiFiClient *client)
 }
 #endif
 
-void THiNX::fetch_data_secure(BearSSL::WiFiClientSecure *client)
+void THiNX::fetch_data_secure(WiFiClientSecure *client)
 {
   //if (logging) Serial.println(F("*TH: Waiting for API response..."));
 
@@ -790,9 +787,9 @@ void THiNX::send_data_secure(const String &body)
     Serial.println(F("*TH: Secure API checkin..."));
 #endif
 
-  https_client.setInsecure(); // does not validate anything, very dangerous!
+  //https_client.setInsecure(); // does not validate anything, very dangerous!
 
-  bool mfln = https_client.probeMaxFragmentLength("tls.mbed.org", 443, 512);
+  bool mfln = false; // https_client.probeMaxFragmentLength("tls.mbed.org", 443, 512);
   //bool mfln = https_client.probeMaxFragmentLength(thinx_cloud_url, thinx_api_port, 512);
 #ifdef DEBUG
   if (logging)
@@ -800,7 +797,7 @@ void THiNX::send_data_secure(const String &body)
 #endif
   if (mfln)
   {
-    https_client.setBufferSizes(512, 512);
+    //https_client.setBufferSizes(512, 512);
   }
 
   Serial.print("[HTTPS]");
@@ -824,7 +821,7 @@ void THiNX::send_data_secure(const String &body)
 
 #ifdef DEBUG
   if (logging)
-    Serial.printf("MFLN status: %s\n", https_client.getMFLNStatus() ? "true" : "false");
+    // Serial.printf("MFLN status: %s\n", https_client.getMFLNStatus() ? "true" : "false");
   if (logging)
     Serial.printf("Memory used: %d\n", ret - ESP.getFreeHeap());
 #endif
@@ -881,10 +878,10 @@ void THiNX::parse(const char *pload)
 
   int start_index = 0;
 
-  int32_t reg_index = (int32)strstr(pload, "\"registration");
-  int32_t upd_index = (int32)strstr(pload, "\"FIRMWARE_UPDATE");
-  int32_t not_index = (int32)strstr(pload, "\"notification");
-  int32_t cfg_index = (int32)strstr(pload, "\"configuration");
+  int32_t reg_index = (int32_t)strstr(pload, "\"registration");
+  int32_t upd_index = (int32_t)strstr(pload, "\"FIRMWARE_UPDATE");
+  int32_t not_index = (int32_t)strstr(pload, "\"notification");
+  int32_t cfg_index = (int32_t)strstr(pload, "\"configuration");
 
   if (upd_index > start_index)
   {
@@ -1687,8 +1684,8 @@ bool THiNX::start_mqtt()
   else
   {
 #ifdef ENABLE_HTTPS
-    https_client.setInsecure();
-    https_client.setBufferSizes(512, 512); // should be don
+    //https_client.setInsecure();
+    //https_client.setBufferSizes(512, 512); // should be don
     mqtt_client = new PubSubClient(https_client, thinx_mqtt_url, THINX_MQTTS_PORT);
 #endif
   }
@@ -1750,6 +1747,8 @@ bool THiNX::start_mqtt()
 
         uint32_t startTime = millis();
         uint32_t size = pub.payload_len();
+        
+        /* stream updates disabled
         if (ESP.updateSketch(*pub.payload_stream(), size, true, false))
         {
           // Notify on reboot for update
@@ -1771,6 +1770,7 @@ bool THiNX::start_mqtt()
               mqtt_device_status_channel,
               "{ \"status\" : \"mqtt_update_failed\" }");
         }
+        */
       }
       else
       {

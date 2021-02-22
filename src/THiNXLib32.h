@@ -13,7 +13,7 @@
 #ifdef THINX_FIRMWARE_VERSION_SHORT
 #define THX_REVISION THINX_FIRMWARE_VERSION_SHORT
 #else
-#define THX_REVISION "258"
+#define THX_REVISION "438"
 #endif
 #endif
 
@@ -31,12 +31,19 @@
 #include <stdio.h>
 #include <time.h>
 
-#include <FS.h>
-#include <EEPROM.h>
+#ifdef ESP_PLATFORM
+#include <SPIFFS.h>
+#include <WiFi.h>
+#include <HTTPClient.h>
+#include <ESP32httpUpdate.h> // already part of firmware, deprecated
+#include <ESPmDNS.h>
+#else
 #include <ESP8266WiFi.h>
-#include <ESP8266mDNS.h>
-#include <ESP8266HTTPClient.h>
 #include <ESP8266httpUpdate.h>
+#include <FS.h>
+#endif
+
+#include <EEPROM.h>
 
 #ifdef ENABLE_HTTPS
 #include <WiFiClientSecure.h>
@@ -48,7 +55,7 @@
 #include <PubSubClient.h>
 
 //#include "sha256.h"
-#include "ESPCompatibility.h"
+#include <ESPCompatibility.h>
 
 class THiNX
 {
@@ -224,7 +231,7 @@ private:
     
 
 #ifdef ENABLE_HTTPS
-    BearSSL::WiFiClientSecure https_client;
+    WiFiClientSecure https_client;
 #else
     WiFiClient http_client;
 #endif
@@ -253,7 +260,7 @@ private:
     void send_data(const String &);        // HTTP
 #endif
 
-    void fetch_data_secure(BearSSL::WiFiClientSecure *client);
+    void fetch_data_secure(WiFiClientSecure *client);
     void fetch_data(WiFiClient *client); // fetch and parse; max return char[] later
 
     void parse(const char *); // needs to be refactored to char[] from String
