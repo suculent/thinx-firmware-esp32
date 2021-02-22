@@ -8,7 +8,7 @@
 
 THiNX	KEYWORD1
 THiNXLib	KEYWORD1
-THiNX32Lib	KEYWORD1
+THiNXLib32	KEYWORD1
 
 #######################################
 # Methods and Functions (KEYWORD2)

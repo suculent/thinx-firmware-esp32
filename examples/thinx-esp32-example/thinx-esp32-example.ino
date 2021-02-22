@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include <THiNX32Lib.h>
+#include <THiNXLib32.h>
 
 #define __DEBUG__
 #define ARDUINO_IDE

@@ -2,7 +2,7 @@
 // This is an auto-generated file, it will be re-written by THiNX on cloud build.
 //
 
-#define T_VERSION "2.8.252"
+#define T_VERSION "2.9.436"
 
 const char * THINX_ALIAS = "unnamed";
 const char * THINX_API_KEY = "";
@@ -18,7 +18,7 @@ const char * THINX_UDID = "0";
 
 const long THINX_MQTT_PORT = 1883;
 const long THINX_MQTTS_PORT = 8883;
-const long THINX_API_PORT = 7442;
+const long THINX_API_PORT = 443; // 7442->80; 7443->443 in Swarm
 
 const bool THINX_AUTO_UPDATE = true;
 const bool THINX_FORCED_UPDATE = false;
@@ -27,3 +27,7 @@ const bool THINX_FORCED_UPDATE = false;
 
 const char * THINX_ENV_SSID = "";     // your network SSID (name); better use DevSec instead
 const char * THINX_ENV_PASS = "";     // your network password; better use DevSec instead
+
+// Hash of the environment, allows force update with same firmware version
+const char * ENV_HASH = "cafebabe";
+//const char * ENV_HASH = "";           // empty for no environment hashes

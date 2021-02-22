@@ -24,7 +24,7 @@ See changelog at the end for rest.
 ## Include
 
 ```c
-#include <THiNX32Lib.h>
+#include <THiNXLib32.h>
 ```
 
 ## Definition
@@ -40,7 +40,7 @@ and awaits optionally new API Key (security hole? FIXME: In case the API Key is 
 
 ```c
 #include "Arduino.h"
-#include <THiNX32Lib.h>
+#include <THiNXLib32.h>
 
 THiNX thx;
 
