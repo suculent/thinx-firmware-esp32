@@ -1,11 +1,14 @@
 # THiNX Lib (ESP32)
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/8dded023f3d14a69b3c38c9f5fd66a40)](https://www.codacy.com/app/suculent/thinx-lib-esp32-arduinoc?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=suculent/thinx-lib-esp32-arduinoc&amp;utm_campaign=Badge_Grade)
+[![Build Status](https://travis-ci.org/suculent/thinx-firmware-esp32.svg)](https://travis-ci.org/suculent/thinx-firmware-esp32)
 
 An Arduino/ESP32 library to wrap client for OTA updates and RTM (Remote Things Management) based on THiNX platform.
 
 # What's New
 
+* In the process of merging ESP8266 and ESP32 implementations to single library. One of these will soon deprecate.
+* HTTPS CA validation
 * Improving method naming. `setStatus` is now deprecated in favour of `setDashboardStatus`.
 
 See changelog at the end for rest.
@@ -21,7 +24,7 @@ See changelog at the end for rest.
 ## Include
 
 ```c
-#include <THiNX32Lib.h>
+#include <THiNXLib32.h>
 ```
 
 ## Definition
@@ -37,7 +40,7 @@ and awaits optionally new API Key (security hole? FIXME: In case the API Key is 
 
 ```c
 #include "Arduino.h"
-#include <THiNX32Lib.h>
+#include <THiNXLib32.h>
 
 THiNX thx;
 
@@ -135,11 +138,3 @@ void pushConfigCallback (String config) {
 
 You can update your device's location aquired by WiFi library or GPS module using `thx.setLocation(double lat, double lon`) from version 2.0.103 (rev88).
 Device will be forced to checked in when you change those values.
-
-# Changelog
-
-16/4/2018 - 2.2.175 - improvements in naming, synced fixes  with ESP8266 version
-
-27/11/2017 - 2.1.145 - ported to ESP32
-
-4/11/2017 - 2.0.123 - added pushConfigCallback, public MQTT methods publishStatus(message) and publish(message, topic, retain), WiFi migration example; added support for finding and using thinx-connect proxy using MDNS
