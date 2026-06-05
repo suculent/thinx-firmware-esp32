@@ -1,13 +1,13 @@
 #pragma GCC diagnostic warning "-Wdeprecated-declarations"
 
+
+#include "thinx.h"
+
 extern "C"
 {
-#include "user_interface.h"
-#include "thinx.h"
-#include <cont.h>
+//#include "user_interface.h"
 #include <time.h>
 #include <stdlib.h>
-  extern cont_t g_cont;
 }
 
 #include "THiNXLib32.h"
@@ -616,7 +616,7 @@ void THiNX::generate_checkin_body()
   uint64_t macAddress = ESP.getEfuseMac();
   uint64_t macAddressTrunc = macAddress << 40;
   uint32_t chipID = macAddressTrunc >> 40;
-  snprintf(flash_chip_id, sizeof(flash_chip_id), "5CCF7F%.6X", chipID);
+  snprintf(flash_chip_id, sizeof(flash_chip_id), "5CCF7F%.6lX", chipID);
 #endif
 
   root["registration"]["fcid"] = flash_chip_id;
@@ -748,7 +748,7 @@ void THiNX::fetch_data(WiFiClient *client)
 #endif
 
 #ifndef __DISABLE_HTTPS__
-void THiNX::fetch_data_secure(BearSSL::WiFiClientSecure *client)
+void THiNX::fetch_data_secure(WiFiClientSecure *client)
 {
   // if (logging) Serial.println(F("*TH: Waiting for API response..."));
 
@@ -756,10 +756,9 @@ void THiNX::fetch_data_secure(BearSSL::WiFiClientSecure *client)
   int pos = 0;
 
   unsigned long interval = 30000;
-  unsigned long currentMillis = millis(), previousMillis = millis();
 
   // Wait until client available or timeout...
-  unsigned long time_out = millis() + 30000;
+  unsigned long time_out = millis() + interval;
   // if (logging) Serial.println(F("*TH: Waiting for client..."));
 
   while (!client->available())
@@ -817,8 +816,6 @@ void THiNX::fetch_data_secure(BearSSL::WiFiClientSecure *client)
 void THiNX::send_data_secure(const String &body)
 {
 
-  int ret = ESP.getFreeHeap();
-
 #ifdef DEBUG
   if (logging)
     Serial.println(F("Secure API checkin..."));
@@ -826,6 +823,7 @@ void THiNX::send_data_secure(const String &body)
 
   https_client.setInsecure(); // does not validate anything, very dangerous!
 
+/* DEPRECATED
   bool mfln = https_client.probeMaxFragmentLength(thinx_cloud_url, 7443, 512);
 #ifdef DEBUG
   if (logging)
@@ -839,6 +837,7 @@ void THiNX::send_data_secure(const String &body)
 #endif
     https_client.setBufferSizes(512, 512);
   }
+*/
 
   if (!https_client.connect(thinx_cloud_url, 7443))
   {
@@ -911,10 +910,10 @@ void THiNX::parse(const char *pload)
 
   int start_index = 0;
 
-  int32_t reg_index = (int32)strstr(pload, "\"registration");
-  int32_t upd_index = (int32)strstr(pload, "\"FIRMWARE_UPDATE");
-  int32_t not_index = (int32)strstr(pload, "\"notification");
-  int32_t cfg_index = (int32)strstr(pload, "\"configuration");
+  int32_t reg_index = (int32_t)strstr(pload, "\"registration");
+  int32_t upd_index = (int32_t)strstr(pload, "\"FIRMWARE_UPDATE");
+  int32_t not_index = (int32_t)strstr(pload, "\"notification");
+  int32_t cfg_index = (int32_t)strstr(pload, "\"configuration");
 
   if (upd_index > start_index)
   {
@@ -1741,45 +1740,6 @@ bool THiNX::start_mqtt()
 
     mqtt_client->set_callback([this](const MQTT::Publish &pub)
                               {
-      // Stream has been never tested so far...
-      if (pub.has_stream())
-      {
-
-        //#ifdef DEBUG
-        Serial.println(F("*TH: MQTT Type: Stream..."));
-        Serial.flush();
-        //#endif
-        if (_update_callback != nullptr)
-        {
-          _update_callback();
-        }
-
-        uint32_t startTime = millis();
-        uint32_t size = pub.payload_len();
-        if (ESP.updateSketch(*pub.payload_stream(), size, true, false))
-        {
-          // Notify on reboot for update
-          mqtt_client->publish(
-              mqtt_device_status_channel,
-              "{ \"status\" : \"rebooting\" }");
-          mqtt_client->disconnect();
-          pub.payload_stream()->stop();
-          if (logging)
-            Serial.printf("Update Success: %lu\nRebooting...\n", millis() - startTime);
-          Serial.flush();
-          ESP.restart();
-        }
-        else
-        {
-          if (logging)
-            Serial.println(F("*TH: ESP MQTT Stream update failed..."));
-          mqtt_client->publish(
-              mqtt_device_status_channel,
-              "{ \"status\" : \"mqtt_update_failed\" }");
-        }
-      }
-      else
-      {
         if (logging)
         {
           //Serial.print(F("Payload string: "));
@@ -1790,7 +1750,7 @@ bool THiNX::start_mqtt()
         {
           _mqtt_callback((byte *)pub.payload_string().c_str());
         }
-      } }); // end-of-callback
+      }); // end-of-callback
 
     return true;
   }
@@ -2124,11 +2084,16 @@ void THiNX::update_and_reboot(String url)
 #ifndef __DISABLE_HTTPS__
   if (logging)
     Serial.println(F("*TH: HTTPS"));
-  ret = ESPhttpUpdate.update(https_client, thinx_cloud_url, 7443, url.c_str());
+#ifdef ESP8266
+  ret = ESPhttpUpdate.update(https_client, thinx_cloud_url, 7443, url.c_str(), THINX_FIRMWARE_VERSION_SHORT);
+#endif
+#ifdef ESP32
+  ret = ESPhttpUpdate.update(thinx_cloud_url, 7443, url.c_str(), THINX_FIRMWARE_VERSION_SHORT);
+#endif
 #else
   if (logging)
     Serial.println(F("*TH: HTTP"));
-  ret = ESPhttpUpdate.update(http_client, thinx_cloud_url, 7442, url, "");
+  ret = ESPhttpUpdate.update(thinx_cloud_url, 7442, url, THINX_FIRMWARE_VERSION_SHORT);
 #endif
 
   switch (ret)
@@ -2719,7 +2684,7 @@ void THiNX::loop()
 #ifdef ESP32
 const char *THiNX::thinx_mac()
 {
-  snprintf(mac_string, sizeof(mac_string), "5CCF7F%.6X", ESP.getEfuseMac());
+  snprintf(mac_string, sizeof(mac_string), "5CCF7F%.6llX", ESP.getEfuseMac());
   return mac_string;
 }
 #endif
