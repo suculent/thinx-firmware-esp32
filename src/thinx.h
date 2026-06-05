@@ -2,7 +2,7 @@
 // This is an auto-generated file, it will be re-written by THiNX on cloud build.
 //
 
-#define T_VERSION "3.0.0"
+#define T_VERSION "3.0.1"
 
 const char * THINX_ALIAS = "unnamed";
 const char * THINX_API_KEY = "";

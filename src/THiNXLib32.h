@@ -35,7 +35,6 @@
 #include <SPIFFS.h>
 #include <WiFi.h>
 #include <HTTPClient.h>
-#include <ESP32httpUpdate.h> // already part of firmware, deprecated
 #include <ESPmDNS.h>
 #else
 #include <ESP8266WiFi.h>

@@ -12,6 +12,8 @@ extern "C"
 
 #include "THiNXLib32.h"
 
+#include <HTTPUpdate.h>
+
 const int API_KEY_TLEN = 64;
 #define OWNER_KEY_TLEN API_KEY_TLEN
 
@@ -816,6 +818,7 @@ void THiNX::send_data_secure(const String &body)
 {
 
 #ifdef DEBUG
+  uint32_t ret = ESP.getFreeHeap();
   if (logging)
     Serial.println(F("Secure API checkin..."));
 #endif
@@ -855,8 +858,6 @@ void THiNX::send_data_secure(const String &body)
   }
 
 #ifdef DEBUG
-  if (logging)
-    Serial.printf("MFLN status: %s\n", https_client.getMFLNStatus() ? "true" : "false");
   if (logging)
     Serial.printf("Memory used: %d\n", ret - ESP.getFreeHeap());
 #endif
@@ -2078,7 +2079,8 @@ void THiNX::update_and_reboot(String url)
 
   if (logging)
     Serial.println(F("*TH: Starting ESP8266 HTTP Update & reboot..."));
-  t_httpUpdate_return ret;
+  
+  HTTPUpdateResult ret;
 
 #ifndef __DISABLE_HTTPS__
   if (logging)
@@ -2086,8 +2088,13 @@ void THiNX::update_and_reboot(String url)
 #ifdef ESP8266
   ret = ESPhttpUpdate.update(https_client, thinx_cloud_url, 7443, url.c_str(), THINX_FIRMWARE_VERSION_SHORT);
 #endif
+
+HTTPUpdate espupdate;
+
 #ifdef ESP32
-  ret = ESPhttpUpdate.update(thinx_cloud_url, 7443, url.c_str(), THINX_FIRMWARE_VERSION_SHORT);
+  
+  //HTTPUpdateResult HTTPUpdate::update(WiFiClient& client, const String& host, uint16_t port, const String& uri, const String& currentVersion, HTTPUpdateRequestCB requestCB)
+  ret = espupdate.update(https_client, thinx_cloud_url, 7443, url.c_str(), "", nullptr);
 #endif
 #else
   if (logging)
@@ -2099,8 +2106,8 @@ void THiNX::update_and_reboot(String url)
   {
   case HTTP_UPDATE_FAILED:
     if (logging)
-      Serial.printf("HTTP_UPDATE_FAILED Error (%d): %s", ESPhttpUpdate.getLastError(), ESPhttpUpdate.getLastErrorString().c_str());
-    setDashboardStatus(ESPhttpUpdate.getLastErrorString());
+      Serial.printf("HTTP_UPDATE_FAILED Error (%d): %s", espupdate.getLastError(), espupdate.getLastErrorString().c_str());
+    setDashboardStatus(espupdate.getLastErrorString());
     break;
 
   case HTTP_UPDATE_NO_UPDATES:
