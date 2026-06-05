@@ -2,10 +2,10 @@
 
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 
-//#define DEBUG                     // takes 8k of sketch and 1+1k of stack/heap size (when measured last time)
-#define __DISABLE_HTTPS__         // to save memory if needed
-//#define __ENABLE_WIFI_MIGRATION__ // enable automatic WiFi disconnect/reconnect on Configuration Push (THINX_ENV_SSID and THINX_ENV_PASS)
-//#define __USE_WIFI_MANAGER__ // if disabled, you need to `WiFi.begin(ssid, pass)` on your own; saves about 3% of sketch space, excludes DNSServer and WebServer
+
+#define ENABLE_HTTPS
+#define __ENABLE_WIFI_MIGRATION__ // enable automatic WiFi disconnect/reconnect on Configuration Push (THINX_ENV_SSID and THINX_ENV_PASS)
+// #define __USE_WIFI_MANAGER__ // if disabled, you need to `WiFi.begin(ssid, pass)` on your own; saves about 3% of sketch space, excludes DNSServer and WebServer
 #define __USE_SPIFFS__    // if disabled, uses EEPROM instead
 #define __DISABLE_PROXY__ // skips using Proxy until required (security measure)
 
@@ -13,13 +13,13 @@
 #ifdef THINX_FIRMWARE_VERSION_SHORT
 #define THX_REVISION THINX_FIRMWARE_VERSION_SHORT
 #else
-#define THX_REVISION "450"
+#define THX_REVISION "0"
 #endif
 #endif
 
 // Provides placeholder for THINX_FIRMWARE_VERSION_SHORT
 #ifndef VERSION
-#define VERSION "2.9." THX_REVISION
+#define VERSION "3.0." THX_REVISION
 #endif
 
 #ifdef __USE_WIFI_MANAGER__
@@ -31,13 +31,22 @@
 #include <stdio.h>
 #include <time.h>
 
-#include <FS.h>
-#include <EEPROM.h>
+#ifdef ESP_PLATFORM
+#include <SPIFFS.h>
+#include <WiFi.h>
+#include <HTTPClient.h>
+#include <ESPmDNS.h>
+#else
 #include <ESP8266WiFi.h>
-#include <ESP8266mDNS.h>
-#include <ESP8266HTTPClient.h>
 #include <ESP8266httpUpdate.h>
+#include <FS.h>
+#endif
+
+#include <EEPROM.h>
+
+#ifdef ENABLE_HTTPS
 #include <WiFiClientSecure.h>
+#endif
 
 #include <ArduinoJson.h>
 
@@ -129,11 +138,11 @@ public:
     bool thinx_forced_update;
 
     long thinx_mqtt_port;
-    long thinx_api_port;
 
     // dynamic variables
     char *thinx_alias;
     char *thinx_owner;
+    char *thinx_meshes;
 
     char *get_udid();
 
@@ -158,10 +167,15 @@ public:
     void publish(const String &, const String &, bool); // send String to any channel, optinally with retain
     void publish(char *message, char *topic, bool retain);
 
+    // Mesh support
+    void broadcast(char *message); // broadcasts message across mesh(es)
+
     static const char time_format[];
     static const char date_format[];
 
     unsigned long epoch();           // estimated timestamp since last checkin as
+    String thinx_time(const char *); // estimated current Time
+    String thinx_date(const char *); // estimated current Date
     void setCheckinInterval(long interval);
     void setRebootInterval(long interval);
 
@@ -174,6 +188,8 @@ public:
     bool wifi_connected; // WiFi connected in station mode
     bool mqtt_connected; // success or failure on subscription
     unsigned long mqtt_reconnect_timeout;
+    unsigned long mqtt_checkin_delay;
+    unsigned long mqtt_init_delay;
 
 private:
     // Memory allocation debugging
@@ -192,13 +208,13 @@ private:
     //
 
 #ifdef THX_REVISION
-    const char *thx_revision = THX_REVISION;
+    const char *thx_revision = strdup(THX_REVISION);
 #else
     const char *thx_revision = "0";
 #endif
 
 #ifdef THX_COMMIT_ID
-    const char *thx_commit_id = THX_COMMIT_ID;
+    const char *thx_commit_id = strdup(THX_COMMIT_ID);
 #else
     const char *thx_commit_id = "unknown";
 #endif
@@ -210,10 +226,12 @@ private:
     void configCallback();
 
     // WiFi Manager
-    WiFiClient http_client;
+    
 
-#ifndef __DISABLE_HTTPS__
-    BearSSL::WiFiClientSecure https_client;
+#ifdef ENABLE_HTTPS
+    WiFiClientSecure https_client;
+#else
+    WiFiClient http_client;
 #endif
 
     int status; // global WiFi status
@@ -222,6 +240,7 @@ private:
     // THiNX API
     static char thx_api_key[65];   // static due to accesibility to WiFiManager
     static char thx_owner_key[65]; // static due to accesibility to WiFiManager
+    long thinx_api_port;
 
     const char *thinx_mac();
 
@@ -232,13 +251,16 @@ private:
     void connect();      // start the connect loop
     void connect_wifi(); // start connecting
 
-#ifdef __DISABLE_HTTPS__
-    void fetch_data(WiFiClient *client); // fetch and parse; max return char[] later
-    void send_data(const String &);        // HTTP
-#else
+#ifdef ENABLE_HTTPS
     void send_data_secure(const String &); // HTTPS
-    void fetch_data_secure(BearSSL::WiFiClientSecure *client);
 #endif
+
+#ifndef ENABLE_HTTPS
+    void send_data(const String &);        // HTTP
+#endif
+
+    void fetch_data_secure(WiFiClientSecure *client);
+    void fetch_data(WiFiClient *client); // fetch and parse; max return char[] later
 
     void parse(const char *); // needs to be refactored to char[] from String
     void update_and_reboot(String);
