@@ -19,11 +19,10 @@ const int API_KEY_TLEN = 64;
 // Reimplementation just to fix missing in THiNX32 since Arduino Core 3.0
 char *strdup(const char *source)
 {
-  int len = strlen(source);
-  char *dest = new char[len];
-  for (int i = 0; i < len; i++)
-    dest[i] = source[i];
-
+  size_t len = strlen(source);
+  char *dest = new char[len + 1]; // +1 for the null terminator
+  memcpy(dest, source, len);
+  dest[len] = '\0'; // without this every strdup() result is unterminated
   return dest;
 }
 #endif
