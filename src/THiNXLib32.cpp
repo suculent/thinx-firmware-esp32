@@ -426,7 +426,9 @@ void THiNX::connect_wifi()
     {
       if (logging)
         Serial.print(F("*TH: WiFi retry #"));
-      Serial.println(wifi_retry);
+      Serial.print(wifi_retry);
+      Serial.print(F(" status: ")); // 1=NO_SSID 4=FAILED 6=WRONG_PASSWORD 7=DISCONNECTED
+      Serial.println(WiFi.status());
       Serial.flush();
       wifi_retry++;
       wifi_connection_in_progress = false; // ignore wifi
@@ -2448,11 +2450,19 @@ void THiNX::loop()
     if (WiFi.status() != WL_CONNECTED)
     {
       wifi_connected = false;
+      // An attempt that never completes must not latch forever. connect() owns
+      // a timeout check, but it is unreachable while the flag is set, so the
+      // first failed WiFi.begin() used to leave the device offline until reset.
+      if (wifi_connection_in_progress && (millis() > wifi_conection_timeout))
+      {
+        wifi_connection_in_progress = false;
+      }
       if (wifi_connection_in_progress != true)
       {
         // if (logging) Serial.println(F("*TH: CONNECTING »"));
         connect(); // blocking
         wifi_connection_in_progress = true;
+        wifi_conection_timeout = millis() + 30000; // retry window
         return;
       }
       else
